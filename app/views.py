@@ -1,12 +1,20 @@
 from django.shortcuts import render, get_object_or_404
-from django.db.models import Count
 from django.views import View
-from .models import Category, MenuItem
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Category, MenuItem, Cart, User, CartItem
 
 
 def index(request):
     """View function for home page of site."""
-    context = {}
+
+    top_rated_items = MenuItem.objects.order_by("-rate_avg")[:20]
+
+    context = {
+        "popular_items": top_rated_items,
+    }
     return render(request, "index.html", context=context)
 
 
@@ -39,9 +47,37 @@ class DishDetail(View):
         price = menu_item.price
         image_url = menu_item.image_url
         context = {
-            'name': name,
-            'description': description,
-            'price': price,
-            'image_url': image_url
+            "name": name,
+            "description": description,
+            "price": price,
+            "image_url": image_url,
         }
-        return render(request, 'dishes/detail.html', context)
+        return render(request, "dishes/detail.html", context)
+
+
+def add_to_cart(request):
+    if request.method == "POST":
+        item_id = request.POST.get("item_id")
+
+        user = User.objects.first()
+
+        cart, created = Cart.objects.get_or_create(user=user)
+
+        item = get_object_or_404(MenuItem, item_id=item_id)
+
+        if item.quantity == 0:
+            return JsonResponse(
+                {"status": "failed", "message": "Item sold out"}, status=400
+            )
+
+        cart_item, created = CartItem.objects.get_or_create(
+            cart=cart, item=item, defaults={"quantity": 1}
+        )
+
+        if not created:
+            cart_item.quantity += 1
+
+        cart_item.save()
+
+        return JsonResponse({"status": "success"})
+    return JsonResponse({"status": "failed"}, status=400)
