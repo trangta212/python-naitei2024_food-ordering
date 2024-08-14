@@ -28,6 +28,15 @@ class Profile(models.Model):
 class Restaurant(models.Model):
     restaurant_id = models.AutoField(primary_key=True)
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    image_url = models.URLField(
+        max_length=constants.URL_LENGTH,
+        null=True,
+        blank=True
+    )
+    opening_hours = models.JSONField(
+        null=True,
+        blank=True,
+    )
 
 
 class Category(models.Model):
@@ -51,11 +60,7 @@ class MenuItem(models.Model):
         max_digits=constants.PRICE_MAX_DIGITS,
         decimal_places=constants.PRICE_DECIMAL_PLACES
     )
-    category = models.ForeignKey(
-        Category,
-        on_delete=models.SET_NULL,
-        null=True
-    )
+    categories = models.ManyToManyField(Category)
     image_url = models.URLField(
         max_length=constants.URL_LENGTH,
         null=True,
