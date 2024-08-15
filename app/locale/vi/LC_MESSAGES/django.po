@@ -3,10 +3,34 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-15 14:52+0700\n"
+"POT-Creation-Date: 2024-08-16 10:19+0700\n"
 "Language: vi\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: .\app\templates\app\cartitem_list.html:14
+msgid "Cart"
+msgstr "Giỏ hàng"
+
+#: .\app\templates\app\cartitem_list.html:82
+msgid "Summary"
+msgstr "Tóm tắt"
+
+#: .\app\templates\app\cartitem_list.html:90
+msgid "Shipping"
+msgstr "Vận chuyển"
+
+#: .\app\templates\app\cartitem_list.html:93
+msgid "Standard-Delivery"
+msgstr "Giao hàng tiêu chuẩn"
+
+#: .\app\templates\app\cartitem_list.html:99
+msgid "Total price"
+msgstr "Tổng"
+
+#: .\app\templates\app\cartitem_list.html:104
+msgid "Pay"
+msgstr "Thanh toán"
 
 #: .\app\templates\dishes\detail.html:16
 msgid "No image available."
@@ -36,3 +60,31 @@ msgstr "Mua ngay"
 #| msgid "No image available."
 msgid "No description available"
 msgstr "Không có mô tả."
+
+#: .\app\templates\menu\menu.html:133
+msgid "No items available for this category."
+msgstr "Không có mục nào có sẵn cho danh mục này."
+
+#: .\app\views.py:76
+msgid "Item sold out"
+msgstr "Sản phẩm đã bán hết"
+
+#: .\app\views.py:88
+msgid "success"
+msgstr "thành công"
+
+#: .\app\views.py:89
+msgid "failed"
+msgstr "thất bại"
+
+#: .\app\views.py:120
+msgid "Cart updated successfully."
+msgstr "Giỏ hàng đã được cập nhật thành công."
+
+#: .\app\views.py:133
+msgid "Item deleted successfully."
+msgstr "Đã xóa mục thành công."
+
+#: .\app\views.py:138
+msgid "Item not found."
+msgstr "Không tìm thấy mục nào."

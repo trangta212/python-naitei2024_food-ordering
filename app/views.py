@@ -1,16 +1,22 @@
+import json
 from django.shortcuts import render, get_object_or_404
-from django.views import View
+from django.views import View, generic
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
+from django.db.models import Sum, F
+from django.utils.translation import gettext_lazy as _
 from .models import Category, MenuItem, Cart, User, CartItem
+from .constants import TOP_RATED_ITEMS_LENGTH, CART_VIEW_PAGINATE
 
 
 def index(request):
     """View function for home page of site."""
 
-    top_rated_items = MenuItem.objects.order_by("-rate_avg")[:20]
+    top_rated_items = MenuItem.objects.order_by("-rate_avg")[
+        :TOP_RATED_ITEMS_LENGTH
+    ]
 
     context = {
         "popular_items": top_rated_items,
@@ -67,7 +73,7 @@ def add_to_cart(request):
 
         if item.quantity == 0:
             return JsonResponse(
-                {"status": "failed", "message": "Item sold out"}, status=400
+                {"status": "failed", "message": _("Item sold out")}, status=400
             )
 
         cart_item, created = CartItem.objects.get_or_create(
@@ -79,5 +85,95 @@ def add_to_cart(request):
 
         cart_item.save()
 
-        return JsonResponse({"status": "success"})
-    return JsonResponse({"status": "failed"}, status=400)
+        return JsonResponse({"status": _("success")})
+    return JsonResponse({"status": _("failed")}, status=400)
+
+
+@csrf_exempt
+def update_cart(request):
+    try:
+        data = json.loads(request.body)
+        user = User.objects.first()
+        cart, created = Cart.objects.get_or_create(user=user)
+
+        if request.method == "POST":
+            for item in data:
+                item_id = item["id"]
+                quantity = item["quantity"]
+
+                try:
+                    cart_item = CartItem.objects.get(
+                        cart=cart, item_id=item_id
+                    )
+                    menu_item = MenuItem.objects.get(item_id=item_id)
+                    if int(quantity) < menu_item.quantity:
+                        cart_item.quantity = quantity
+                        if int(quantity) == 0:
+                            cart_item.delete()
+                        else:
+                            cart_item.save()
+                except CartItem.DoesNotExist:
+                    menu_item = MenuItem.objects.get(id=item_id)
+                    CartItem.objects.create(
+                        cart=cart, item=menu_item, quantity=quantity
+                    )
+
+            return JsonResponse(
+                {"success": True, "message": _("Cart updated successfully.")}
+            )
+
+        elif request.method == "DELETE":
+            data = json.loads(request.body)
+            item_id = data["id"]
+
+            try:
+                cart_item = CartItem.objects.get(cart=cart, item_id=item_id)
+                cart_item.delete()
+                return JsonResponse(
+                    {
+                        "success": True,
+                        "message": _("Item deleted successfully."),
+                    }
+                )
+            except CartItem.DoesNotExist:
+                return JsonResponse(
+                    {"success": False, "message": _("Item not found.")}
+                )
+
+    except Exception as e:
+        original_message = str(e)
+        translated_message = _(original_message)
+
+        return JsonResponse({"success": False, "message": translated_message})
+
+
+class CartView(generic.ListView):
+    """View function for home page of site."""
+
+    paginate_by = CART_VIEW_PAGINATE
+    context_object_name = "cart_items"
+
+    def get_queryset(self):
+        first_user = User.objects.first()
+        if first_user:
+            return CartItem.objects.filter(cart__user=first_user)
+        else:
+            return CartItem.objects.none()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        items = self.get_queryset()
+        total_item = items.count()
+        total_quantity = items.aggregate(Sum("quantity"))["quantity__sum"] or 0
+        total_price = (
+            items.aggregate(total_price=Sum(F("quantity") * F("item__price")))[
+                "total_price"
+            ]
+            or 0
+        )
+
+        context["total_price"] = total_price
+        context["total_price_include_shipping"] = total_price + 5
+        context["total_item"] = total_item
+        context["total_quantity"] = total_quantity
+        return context

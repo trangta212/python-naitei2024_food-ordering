@@ -1,0 +1,55 @@
+@media (min-width: 1025px) {
+    .h-custom {
+        height: 100vh !important;
+    }
+}
+    
+.card-registration .select-input.form-control[readonly]:not([disabled]) {
+    font-size: 1rem;
+    line-height: 2.15;
+    padding-left: .75em;
+    padding-right: .75em;
+}
+    
+.card-registration .select-arrow {
+    top: 13px;
+}
+
+.cart-input {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    text-align: center;
+    min-width: 40px;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.cart-button {
+    color: #1a1a1a !important;
+    box-shadow: none !important;
+    
+}
+
+.cart-button:hover {
+    box-shadow: 0 0 0 0.2rem rgba(255, 179, 14, 0.25) !important;
+}
+
+.cart-pagination-text {
+    color: rgb(66, 66, 66);
+    font-size: 0.83333rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.cart-pagination-link {
+    color: rgb(110, 156, 255);
+}
+
+.cart-pagination-link:hover {
+    color: rgb(0, 81, 255) !important;
+}
+
+.detele-cart-item-button {
+    border: 0;
+    background-color: white;
+}
