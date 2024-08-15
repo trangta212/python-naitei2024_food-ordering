@@ -1,4 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
+from django.db.models import Count
+from django.views import View
 from .models import Category, MenuItem
 
 
@@ -27,3 +29,19 @@ def menu_view(request):
         "dinner_item": menu_items_by_category["dinner"],
     }
     return render(request, "menu/menu.html", context=context)
+
+
+class DishDetail(View):
+    def get(self, request, item_id):
+        menu_item = get_object_or_404(MenuItem, item_id=item_id)
+        name = menu_item.name
+        description = menu_item.description
+        price = menu_item.price
+        image_url = menu_item.image_url
+        context = {
+            'name': name,
+            'description': description,
+            'price': price,
+            'image_url': image_url
+        }
+        return render(request, 'dishes/detail.html', context)
