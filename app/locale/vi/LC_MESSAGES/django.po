@@ -88,3 +88,19 @@ msgstr "Đã xóa mục thành công."
 #: .\app\views.py:138
 msgid "Item not found."
 msgstr "Không tìm thấy mục nào."
+
+#: .\app\templates\menu\menu.html:13
+msgid "Food"
+msgstr "Món ăn"
+
+#: .\app\templates\menu\menu.html:14
+msgid "Menu for"
+msgstr "Thực đơn cho"
+
+#: .\app\templates\menu\menu.html:30
+msgid "Order now"
+msgstr "Đặt ngay"
+
+#: .\app\templates\menu\menu.html:35
+msgid "No items available for this category."
+msgstr "Không có mục nào có sẵn cho danh mục này."
