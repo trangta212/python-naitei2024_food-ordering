@@ -1,0 +1,122 @@
+{% extends 'base.html' %} {% load i18n %} {% load static %} {% block content %}
+
+<section class="h-100 h-custom">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-12">
+            {% if cart_items %}
+            <div class="card card-registration card-registration-2" style="border-radius: 15px;">
+            <div class="card-body p-0">
+              <div class="row g-0">
+                <div class="col-lg-8">
+                  <div class="p-5">
+                    <div class="d-flex justify-content-between align-items-center mb-5">
+                      <h1 class="fw-bold mb-0">{% translate "Cart" %}</h1>
+                      <h6 class="mb-0 text-muted">{{ total_item }}</h6>
+                    </div>
+                    
+                    
+                    {% for item in cart_items %}
+                    <hr class="my-4">
+                    <div class="row mb-4 d-flex justify-content-between align-items-center">
+                      <div class="col-md-2 col-lg-2 col-xl-2">
+                        <img
+                          src="{% static item.item.image_url %}"
+                          class="img-fluid rounded-3" alt="Cotton T-shirt">
+                      </div>
+                      <div class="col-md-3 col-lg-3 col-xl-3">
+                        <h6 class="text-muted">{{ item.item.restaurant.profile.name }}</h6>
+                        <h6 class="mb-0">{{ item.item.name }}</h6>
+                      </div>
+                      <div class="col-md-3 col-lg-3 col-xl-2 d-flex">
+                        <button data-mdb-button-init data-mdb-ripple-init class="btn btn-link px-2 cart-button"
+                            onclick="stepDown(this, '{{ item.item.item_id }}')">
+                          <i class="fas fa-minus"></i>
+                        </button>
+  
+                        <input id="{{ item.item.item_id }}" min="0" max="{{ item.item.quantity }}" name="quantity" value="{{ item.quantity }}" type="number"
+                          class="form-control form-control-sm cart-input" onchange="changeQuantity('{{ item.item.item_id }}')"/>
+  
+                        <button data-mdb-button-init data-mdb-ripple-init class="btn btn-link px-2 cart-button"
+                            onclick="stepUp(this, '{{ item.item.item_id }}')">
+                          <i class="fas fa-plus"></i>
+                        </button>
+                      </div>
+                      <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
+                        <h6 class="mb-0">${{ item.item.price }}</h6>
+                      </div>
+                      <div class="col-md-1 col-lg-1 col-xl-1 text-end">
+                        <button onclick="deleteClick('{{ item.item.item_id }}')" class="detele-cart-item-button"><i class="fas fa-times"></i></button>
+                      </div>
+                    </div>
+                    {% endfor %}
+  
+                    <hr class="my-4">
+                    
+                    <div class="d-flex justify-content-end">
+                        <button class="btn btn-lg btn-danger show-toast-btn cart-save-button" role="button" onclick="saveClick()">Save</button>
+                    </div>
+                    <div class="pt-3 d-flex justify-content-between">
+                        <h6 class="mb-0"><a href="/" class="text-body"><i
+                            class="fas fa-long-arrow-alt-left me-2"></i>Back to home page</a></h6>
+                        <div class="pagination">
+                            <span class="step-links cart-pagination-text">
+                                {% if page_obj.has_previous %}
+                                    <a class="cart-pagination-link" href="{{ request.path }}?page={{ page_obj.previous_page_number }}">previous</a>
+                                {% endif %}
+                        
+                                <span class="current">
+                                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                                </span>
+                        
+                                {% if page_obj.has_next %}
+                                    <a class="cart-pagination-link" href="{{ request.path }}?page={{ page_obj.next_page_number }}">next</a>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-4 bg-body-tertiary">
+                  <div class="p-5">
+                    <h3 class="fw-bold mb-5 mt-2 pt-1">{% translate "Summary" %}</h3>
+                    <hr class="my-4">
+  
+                    <div class="d-flex justify-content-between mb-4">
+                      <h5 class="text-uppercase">items {{ total_quantity }}</h5>
+                      <h5>${{ total_price }}</h5>
+                    </div>
+  
+                    <h5 class="text-uppercase mb-3">{% translate "Shipping" %}</h5>
+  
+                    <div class="mb-4 pb-2">
+                      <span>{% translate "Standard-Delivery" %}- $5.00</span>
+                    </div>
+  
+                    <hr class="my-4">
+  
+                    <div class="d-flex justify-content-between mb-5">
+                      <h5 class="text-uppercase">{% translate "Total price" %}</h5>
+                      <h5>${{ total_price_include_shipping }}</h5>
+                    </div>
+  
+                    <div class="w-100 d-flex justify-content-center">
+                        <button class="btn btn-lg btn-danger show-toast-btn cart-save-button w-100" role="button">{% translate "Pay" %}</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            </div>
+            {% endif %}
+        </div>
+      </div>
+    </div>
+</section>
+
+<meta name="update-cart" content="{% url 'update_cart' %}">
+<meta name="csrf-token" content="{{ csrf_token }}">
+
+<script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
+<script src="{% static 'js/order/updateCart.js' %}"></script>
+{% endblock %}
