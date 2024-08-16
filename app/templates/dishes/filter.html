@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+{% block content %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/filter.css' %}">
+{% endblock %}
+<div class="pt-6">
+        <!-- Menu Start -->
+        <div class="container-xxl py-5">
+            <div class="container">
+                <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
+                    <h5 class="section-title ff-secondary text-center text-primary fw-normal">{% trans "Food" %}</h5>
+                    <h1 class="mb-5">{%trans "Menu for" %} {{ category.category_name }}</h1>
+                </div>
+                <div class="tab-class text-center wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="tab-content">
+                        <div id="tab-1" class="tab-pane fade show p-0 active">
+                            <div class="row g-4">
+                             {% for item in menu_items %}
+                                <div class="col-lg-6">
+                                    <div class="d-flex align-items-center">
+                                        <img class="flex-shrink-0 img-fluid rounded" src="{% static item.image_url %}" alt="" style="width: 80px;">
+                                        <div class="w-100 d-flex flex-column text-start ps-4">
+                                            <h5 class="d-flex justify-content-between border-bottom pb-2">
+                                                <span>{{ item.name }}</span>
+                                                <span class="text-primary">${{ item.price }}</span>
+                                            </h5>
+                                            <small class="fst-italic">{{ item.description|default:_("No description available") }}</small>
+                                            <div class="d-grid gap-2"><a class="btn btn-lg btn-danger" href="#!" role="button">{% trans "Order now" %}</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <p>{% trans "No items available for this category." %}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Menu End -->
+
+        <!-- Back to Top -->
+        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+    </div>
+</div>
+
+<!-- JavaScript Libraries -->
+<script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'js/lib/wow.min.js' %}"></script>
+<script src="{% static 'js/lib/easing.min.js' %}"></script>
+<script src="{% static 'js/lib/waypoints.min.js' %}"></script>
+<script src="{% static 'js/lib/counterup.min.js' %}"></script>
+<script src="{% static 'js/lib/owl.carousel.min.js' %}"></script>
+<script src="{% static 'js/lib/moment.min.js' %}"></script>
+<script src="{% static 'js/lib/moment-timezone.min.js' %}"></script>
+<script src="{% static 'js/lib/tempusdominus-bootstrap-4.min.js' %}"></script>
+
+<!-- Template Javascript -->
+<script src="{% static 'js/main.js' %}"></script>
+{% endblock %}

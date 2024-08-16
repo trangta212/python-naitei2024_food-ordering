@@ -1,6 +1,14 @@
 import json
-from django.shortcuts import render, get_object_or_404
+from django.contrib import messages
+from django.conf import settings
+from django.shortcuts import redirect, render, get_object_or_404
+from django.db.models import Count
 from django.views import View, generic
+from django.contrib.auth import login, logout, authenticate
+from django.contrib import messages
+from django.utils.translation import gettext as _
+
+from app.forms import SignUpForm, LogInForm
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
@@ -23,6 +31,56 @@ def index(request):
     }
     return render(request, "index.html", context=context)
 
+
+User = settings.AUTH_USER_MODEL
+
+
+def register_view(request):
+    if request.method == "POST":
+        form = SignUpForm(request.POST or None)
+        if form.is_valid():
+            new_user = form.save()
+            new_user = authenticate(email=form.cleaned_data.get("email"),
+                                    password=form.cleaned_data.get("password1")
+                                    )
+            login(request, new_user)
+
+            return redirect("app:index")
+    else: 
+        form = SignUpForm()
+    
+    context = {
+        "form": form,
+    }
+    return render(request, "registration/sign-up.html", context)
+
+def login_view(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        try:
+            user = User.objects.get(email=email)
+        except:
+            messages.warning(request, _(f"User with {email} does not exist"))
+
+        user = authenticate(request, email=email, password=password)
+
+        if user is not None:
+            login(request, user)
+            messages.success(request, _("Logged in"))
+            return redirect("app:index")
+        else:
+            messages.warning(request, _("User does not exist."))
+
+    context = {
+
+    }
+
+    return render(request, "registration/login.html", context)
+
+def logout_view(request):
+    logout(request)
+    return redirect("app:login")
 
 def menu_view(request):
     """View function for menu."""
@@ -177,3 +235,16 @@ class CartView(generic.ListView):
         context["total_item"] = total_item
         context["total_quantity"] = total_quantity
         return context
+    
+class DishFilter(View):
+    def get(self, request, category_id):
+        category = get_object_or_404(Category, pk=category_id)
+        menu_items = MenuItem.objects.filter(categories=category)
+
+        # Tạo context với category và menu_items
+        context = {
+            'category': category,
+            'menu_items': menu_items
+        }
+        # Trả về context trong render
+        return render(request, 'dishes/filter.html', context)
