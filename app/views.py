@@ -53,19 +53,21 @@ def register_view(request):
         form = SignUpForm(request.POST or None)
         if form.is_valid():
             new_user = form.save()
-            new_user = authenticate(email=form.cleaned_data.get("email"),
-                                    password=form.cleaned_data.get("password1")
+            new_user = authenticate(
+                email=form.cleaned_data.get("email"),
+                password=form.cleaned_data.get("password1"),
             )
             login(request, new_user)
 
             return redirect("app:index")
-    else: 
+    else:
         form = SignUpForm()
-    
+
     context = {
         "form": form,
     }
     return render(request, "registration/sign-up.html", context)
+
 
 def login_view(request):
     if request.method == "POST":
@@ -74,7 +76,7 @@ def login_view(request):
 
         try:
             user = User.objects.get(email=email)
-        except:
+        except Exception:
             messages.warning(request, _(f"User with {email} does not exist"))
 
         user = authenticate(request, email=email, password=password)
@@ -86,15 +88,15 @@ def login_view(request):
         else:
             messages.warning(request, _("User does not exist."))
 
-    context = {
-
-    }
+    context = {}
 
     return render(request, "registration/login.html", context)
+
 
 def logout_view(request):
     logout(request)
     return redirect("app:login")
+
 
 def menu_view(request):
     """View function for menu."""
@@ -183,7 +185,7 @@ def add_to_cart(request):
             cart=cart, item=item, defaults={"quantity": 1}
         )
 
-        if not created and item.quantity > 1:
+        if not created and cart_item.quantity < item.quantity:
             cart_item.quantity += 1
 
         cart_item.save()
@@ -280,19 +282,17 @@ class CartView(generic.ListView):
         context["total_item"] = total_item
         context["total_quantity"] = total_quantity
         return context
-    
+
+
 class DishFilter(View):
     def get(self, request, category_id):
         category = get_object_or_404(Category, pk=category_id)
         menu_items = MenuItem.objects.filter(categories=category)
 
         # Tạo context với category và menu_items
-        context = {
-            'category': category,
-            'menu_items': menu_items
-        }
+        context = {"category": category, "menu_items": menu_items}
         # Trả về context trong render
-        return render(request, 'dishes/filter.html', context)
+        return render(request, "dishes/filter.html", context)
 
 
 class OrderView(generic.ListView):
@@ -330,7 +330,9 @@ def create_order(request):
             cart = Cart.objects.filter(user=user).first()
             cart_items = CartItem.objects.filter(cart=cart)
             if not cart or not cart_items:
-                return JsonResponse({"error": _("Cart is not found")}, status=400)
+                return JsonResponse(
+                    {"error": _("Cart is not found")}, status=400
+                )
 
             profile = Profile.objects.get(user=user)
 
@@ -365,7 +367,10 @@ def create_order(request):
                 if cart_item.item.quantity < cart_item.quantity:
                     order.delete()
                     cart_item.quantity = cart_item.item.quantity
-                    return JsonResponse({"error": _("Insufficient product quantity")}, status=500)
+                    return JsonResponse(
+                        {"error": _("Insufficient product quantity")},
+                        status=500,
+                    )
 
                 order_item = OrderItem(
                     order=order,
@@ -395,5 +400,59 @@ def create_order(request):
                 status=201,
             )
 
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+
+@login_required
+def cancel_order(request):
+    if request.method == "POST":
+        try:
+            user = request.user
+            data = json.loads(request.body)
+            order_id = data.get("order_id")
+            order = Order.objects.get(order_id=order_id)
+            items = OrderItem.objects.filter(order=order)
+
+            if order.user.user != user:
+                return JsonResponse(
+                    {
+                        "error": _(
+                            "You do not have permission to cancel this order."
+                        )
+                    },
+                    status=403,
+                )
+
+            if order.status == "Pending":
+                for item in items:
+                    menu_item = item.item
+                    menu_item.quantity += item.quantity
+                    menu_item.save()
+
+                items.delete()
+                order.delete()
+
+                return JsonResponse(
+                    {
+                        "order_id": order_id,
+                        "success": True,
+                        "status": _("Order has been canceled successfully"),
+                    },
+                    status=200,
+                )
+
+            else:
+                return JsonResponse(
+                    {
+                        "error": _(
+                            "Order cannot be canceled as it is not in Pending status."
+                        ),
+                    },
+                    status=400,
+                )
+
+        except Order.DoesNotExist:
+            return JsonResponse({"error": _("Order not found")}, status=404)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
