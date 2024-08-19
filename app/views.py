@@ -234,3 +234,16 @@ class CartView(generic.ListView):
         context["total_item"] = total_item
         context["total_quantity"] = total_quantity
         return context
+    
+class DishFilter(View):
+    def get(self, request, category_id):
+        category = get_object_or_404(Category, pk=category_id)
+        menu_items = MenuItem.objects.filter(categories=category)
+
+        # Tạo context với category và menu_items
+        context = {
+            'category': category,
+            'menu_items': menu_items
+        }
+        # Trả về context trong render
+        return render(request, 'dishes/filter.html', context)

@@ -18,6 +18,9 @@ urlpatterns = [
         views.DishDetail.as_view(),
         name='dish_detail'
     ),
+    path('dishfilter/<int:category_id>/',
+         views.DishFilter.as_view(),
+         name='dish_filter'),
 ] + static(
     settings.MEDIA_URL,
     document_root=settings.MEDIA_ROOT
