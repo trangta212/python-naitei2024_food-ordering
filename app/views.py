@@ -116,7 +116,38 @@ class DishDetail(View):
             "image_url": image_url,
         }
         return render(request, "dishes/detail.html", context)
+    
 
+def search_view(request):
+    query = request.GET.get('q')  # Search by name
+    category_id = request.GET.get('category')  # Filter by category
+    price_order = request.GET.get('price_order')  # Sort by price
+
+    items = MenuItem.objects.all()
+
+    if query:
+        items = MenuItem.objects.filter(
+            name__icontains=query
+        ) | MenuItem.objects.filter(
+            description__icontains=query
+        )
+    categories = Category.objects.all()
+
+    if category_id:
+        items = items.filter(categories=category_id)
+
+    if price_order:
+        if price_order == 'asc':
+            items = items.order_by('price')
+        elif price_order == 'desc':
+            items = items.order_by('-price')
+
+    context = {
+        "items": items,
+        "query": query,
+        "categories": categories,
+    }
+    return render(request, "search/search.html", context)
 
 def add_to_cart(request):
     if request.method == "POST":
