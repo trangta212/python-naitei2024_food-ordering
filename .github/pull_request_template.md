@@ -8,16 +8,14 @@
 - [ ] Nếu làm việc nhóm trong project thì mỗi pull cần ít nhất 1 APPROVED từ thành viên trong nhóm
 
 ## Related Tickets
-- ticket redmine
+- [ticket redmine](https://edu-redmine.sun-asterisk.vn/issues/79321)
 
 ## WHAT (optional)
-- Change number items `completed/total` in admin page.
+- Sign up, Login, Logout
 
 ## HOW
-- I edit js file, inject not_vary_normal items in calculate function.
 
 ## WHY (optional)
-- Because in previous version - number just depends on `normal` items. But in new version, we have `state` and `confirm_state` depends on both `normal` + `not_normal` items.
 
 ## Evidence (Screenshot or Video)
 
