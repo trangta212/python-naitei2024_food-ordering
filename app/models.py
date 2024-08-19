@@ -5,7 +5,11 @@ from . import constants
 
 class User(AbstractUser):
     user_id = models.AutoField(primary_key=True)
+    email = models.EmailField(unique=True)
     role = models.CharField(max_length=constants.ROLE_LENGTH)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
 
     def __str__(self):
         return self.username

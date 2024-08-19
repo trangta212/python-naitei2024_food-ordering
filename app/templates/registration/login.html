@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% block title %}Log In{% endblock %}
+{% block extra_css %} 
+    <link rel="stylesheet" href="{% static 'css/login_signup.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="card">
+        <h2 class="card-header text-center">{% trans "Log In" %}</h2>
+        <form method="post">
+            <div class="card-body">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <input type="text" class="form-control form-control-lg" name="email" id="email" placeholder="Email"
+                        required />
+                </div>
+                <div class="mb-3">
+                    <input type="password" class="form-control form-control-lg" name="password" id="password"
+                        placeholder="Password" required />
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">{% trans "Log In" %}</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
