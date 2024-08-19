@@ -3,10 +3,26 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-16 10:19+0700\n"
+"POT-Creation-Date: 2024-08-19 20:45+0700\n"
 "Language: vi\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: .\app\forms.py:19
+msgid "Username"
+msgstr "Tên người dùng"
+
+#: .\app\forms.py:20 .\app\forms.py:35
+msgid "Email"
+msgstr "Email"
+
+#: .\app\forms.py:21 .\app\forms.py:36
+msgid "Password"
+msgstr "Mật khẩu"
+
+#: .\app\forms.py:22
+msgid "Confirm Password"
+msgstr "Xác nhận mật khẩu"
 
 #: .\app\templates\app\cartitem_list.html:14
 msgid "Cart"
@@ -17,6 +33,7 @@ msgid "Summary"
 msgstr "Tóm tắt"
 
 #: .\app\templates\app\cartitem_list.html:90
+#: .\app\templates\app\orderitem_list.html:84
 msgid "Shipping"
 msgstr "Vận chuyển"
 
@@ -31,6 +48,86 @@ msgstr "Tổng"
 #: .\app\templates\app\cartitem_list.html:104
 msgid "Pay"
 msgstr "Thanh toán"
+
+#: .\app\templates\app\orderitem_list.html:12
+msgid "Thanks for your Order, "
+msgstr "Cảm ơn vì đã đặt hàng, "
+
+#: .\app\templates\app\orderitem_list.html:30
+msgid "Rate:"
+msgstr "Tỷ lệ:"
+
+#: .\app\templates\app\orderitem_list.html:33
+msgid "Qty:"
+msgstr "Sl:"
+
+#: .\app\templates\app\orderitem_list.html:46
+msgid "previous"
+msgstr "trước"
+
+#: .\app\templates\app\orderitem_list.html:50
+msgid "Page"
+msgstr "Trang"
+
+#: .\app\templates\app\orderitem_list.html:50
+msgid "of"
+msgstr "trên"
+
+#: .\app\templates\app\orderitem_list.html:61
+msgid "Track Order"
+msgstr "Theo dõi đơn hàng"
+
+#: .\app\templates\app\orderitem_list.html:70
+msgid "Processing"
+msgstr "Xử lý"
+
+#: .\app\templates\app\orderitem_list.html:71
+#, fuzzy
+#| msgid "Standard-Delivery"
+msgid "Out for delivery"
+msgstr "Giao hàng tiêu chuẩn"
+
+#: .\app\templates\app\orderitem_list.html:72
+msgid "Delivered"
+msgstr "Đã giao hàng"
+
+#: .\app\templates\app\orderitem_list.html:78
+msgid "Order Details"
+msgstr "Chi tiết đặt hàng"
+
+#: .\app\templates\app\orderitem_list.html:79
+#, fuzzy
+#| msgid "Total price"
+msgid "Total"
+msgstr "Tổng"
+
+#: .\app\templates\app\orderitem_list.html:83
+#, fuzzy
+#| msgid "Order now"
+msgid "Order ID:"
+msgstr "Đặt ngay"
+
+#: .\app\templates\app\orderitem_list.html:88
+#, fuzzy
+#| msgid "Total price"
+msgid "Total paid:"
+msgstr "Tổng"
+
+#: .\app\templates\components\header.html:8
+msgid "foodwaGon"
+msgstr ""
+
+#: .\app\templates\components\header.html:28
+msgid "Logout"
+msgstr "Đăng xuất"
+
+#: .\app\templates\components\header.html:33
+msgid "Login"
+msgstr "Đăng nhập"
+
+#: .\app\templates\components\header.html:36
+msgid "Sign Up"
+msgstr "Đăng ký"
 
 #: .\app\templates\dishes\detail.html:16
 msgid "No image available."
@@ -54,53 +151,89 @@ msgstr "Thêm vào giỏ hàng"
 msgid "Buy Now"
 msgstr "Mua ngay"
 
-#: .\app\templates\menu\menu.html:66 .\app\templates\menu\menu.html:95
-#: .\app\templates\menu\menu.html:124
+#: .\app\templates\dishes\filter.html:13
+msgid "Food"
+msgstr "Món ăn"
+
+#: .\app\templates\dishes\filter.html:29 .\app\templates\menu\menu.html:66
+#: .\app\templates\menu\menu.html:95 .\app\templates\menu\menu.html:124
 #, fuzzy
 #| msgid "No image available."
 msgid "No description available"
 msgstr "Không có mô tả."
 
-#: .\app\templates\menu\menu.html:133
-msgid "No items available for this category."
-msgstr "Không có mục nào có sẵn cho danh mục này."
-
-#: .\app\views.py:76
-msgid "Item sold out"
-msgstr "Sản phẩm đã bán hết"
-
-#: .\app\views.py:88
-msgid "success"
-msgstr "thành công"
-
-#: .\app\views.py:89
-msgid "failed"
-msgstr "thất bại"
-
-#: .\app\views.py:120
-msgid "Cart updated successfully."
-msgstr "Giỏ hàng đã được cập nhật thành công."
-
-#: .\app\views.py:133
-msgid "Item deleted successfully."
-msgstr "Đã xóa mục thành công."
-
-#: .\app\views.py:138
-msgid "Item not found."
-msgstr "Không tìm thấy mục nào."
-
-#: .\app\templates\menu\menu.html:13
-msgid "Food"
-msgstr "Món ăn"
-
-#: .\app\templates\menu\menu.html:14
-msgid "Menu for"
-msgstr "Thực đơn cho"
-
-#: .\app\templates\menu\menu.html:30
+#: .\app\templates\dishes\filter.html:30
 msgid "Order now"
 msgstr "Đặt ngay"
 
-#: .\app\templates\menu\menu.html:35
+#: .\app\templates\dishes\filter.html:35 .\app\templates\menu\menu.html:133
 msgid "No items available for this category."
 msgstr "Không có mục nào có sẵn cho danh mục này."
+
+#: .\app\templates\registration\login.html:12
+#: .\app\templates\registration\login.html:25
+msgid "Log In"
+msgstr "Đăng nhập"
+
+#: .\app\templates\registration\sign-up.html:12
+#: .\app\templates\registration\sign-up.html:20
+msgid "Sign up"
+msgstr "Đăng ký"
+
+#: .\app\views.py:76
+#, python-brace-format
+msgid "User with {email} does not exist"
+msgstr "Người dùng có {email} không tồn tại"
+
+#: .\app\views.py:82
+msgid "Logged in"
+msgstr "Đã đăng nhập"
+
+#: .\app\views.py:85
+msgid "User does not exist."
+msgstr "Người dùng không tồn tại."
+
+#: .\app\views.py:146
+msgid "Item sold out"
+msgstr "Sản phẩm đã bán hết"
+
+#: .\app\views.py:158
+msgid "success"
+msgstr "thành công"
+
+#: .\app\views.py:159
+msgid "failed"
+msgstr "thất bại"
+
+#: .\app\views.py:192
+msgid "Cart updated successfully."
+msgstr "Giỏ hàng đã được cập nhật thành công."
+
+#: .\app\views.py:205
+msgid "Item deleted successfully."
+msgstr "Đã xóa mục thành công."
+
+#: .\app\views.py:210
+msgid "Item not found."
+msgstr "Không tìm thấy mục nào."
+
+#: .\app\views.py:300
+#, fuzzy
+#| msgid "Item not found."
+msgid "Cart is not found"
+msgstr "Không tìm thấy mục nào."
+
+#: .\app\views.py:318
+#, fuzzy
+#| msgid "Item not found."
+msgid "Restaurant not found"
+msgstr "Không tìm thấy mục nào."
+
+#: .\app\views.py:359
+#, fuzzy
+#| msgid "Cart updated successfully."
+msgid "Order created successfully"
+msgstr "Giỏ hàng đã được cập nhật thành công."
+
+#~ msgid "Menu for"
+#~ msgstr "Thực đơn cho"

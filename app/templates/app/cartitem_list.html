@@ -101,7 +101,7 @@
                     </div>
   
                     <div class="w-100 d-flex justify-content-center">
-                        <button class="btn btn-lg btn-danger show-toast-btn cart-save-button w-100" role="button">{% translate "Pay" %}</button>
+                        <button onclick="payClick()" class="btn btn-lg btn-danger show-toast-btn cart-save-button w-100" role="button">{% translate "Pay" %}</button>
                     </div>
                   </div>
                 </div>
@@ -114,9 +114,11 @@
     </div>
 </section>
 
-<meta name="update-cart" content="{% url 'update_cart' %}">
+<meta name="update-cart" content="{% url 'app:update_cart' %}">
 <meta name="csrf-token" content="{{ csrf_token }}">
+<meta name="create-order" content="{% url 'app:create_order' %}">
 
 <script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
 <script src="{% static 'js/order/updateCart.js' %}"></script>
+<script src="{% static 'js/order/order.js' %}"></script>
 {% endblock %}

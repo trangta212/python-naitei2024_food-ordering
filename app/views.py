@@ -1,10 +1,13 @@
 import json
+import uuid
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.shortcuts import redirect, render, get_object_or_404
 from django.db.models import Count
 from django.views import View, generic
 from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils.translation import gettext as _
 
@@ -14,9 +17,21 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Sum, F
+from django.db import transaction, models
 from django.utils.translation import gettext_lazy as _
-from .models import Category, MenuItem, Cart, User, CartItem
-from .constants import TOP_RATED_ITEMS_LENGTH, CART_VIEW_PAGINATE
+from django.utils import timezone
+from .models import (
+    Category,
+    MenuItem,
+    Cart,
+    User,
+    CartItem,
+    OrderItem,
+    Profile,
+    Order,
+    Payment,
+)
+from .constants import TOP_RATED_ITEMS_LENGTH, CART_VIEW_PAGINATE, SHIPPING
 
 
 def index(request):
@@ -31,7 +46,7 @@ def index(request):
     }
     return render(request, "index.html", context=context)
 
-User = settings.AUTH_USER_MODEL
+User = get_user_model()
 
 def register_view(request):
     if request.method == "POST":
@@ -137,7 +152,7 @@ def add_to_cart(request):
             cart=cart, item=item, defaults={"quantity": 1}
         )
 
-        if not created:
+        if not created and item.quantity > 1:
             cart_item.quantity += 1
 
         cart_item.save()
@@ -230,7 +245,7 @@ class CartView(generic.ListView):
         )
 
         context["total_price"] = total_price
-        context["total_price_include_shipping"] = total_price + 5
+        context["total_price_include_shipping"] = total_price + SHIPPING
         context["total_item"] = total_item
         context["total_quantity"] = total_quantity
         return context
@@ -247,3 +262,107 @@ class DishFilter(View):
         }
         # Trả về context trong render
         return render(request, 'dishes/filter.html', context)
+
+
+class OrderView(generic.ListView):
+    """View function for home page of site."""
+
+    paginate_by = CART_VIEW_PAGINATE
+    context_object_name = "order_items"
+
+    def get_queryset(self):
+        order_id = self.kwargs["order_id"]
+        first_user = User.objects.first()
+        if first_user:
+            return OrderItem.objects.filter(order__order_id=order_id)
+        else:
+            return OrderItem.objects.none()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        first_user = User.objects.first()
+        first_profile = Profile.objects.filter(user=first_user).first()
+        order = Order.objects.filter(user=first_profile).first()
+
+        context["order_id"] = self.kwargs["order_id"]
+        context["user_name"] = first_profile.name
+
+        context["total_price"] = order.total_price
+        context["total_price_include_shipping"] = order.total_price + SHIPPING
+        return context
+
+@login_required
+def create_order(request):
+    if request.method == "POST":
+        try:
+            user = request.user
+            cart = Cart.objects.filter(user=user).first()
+            cart_items = CartItem.objects.filter(cart=cart)
+            if not cart or not cart_items:
+                return JsonResponse({"error": _("Cart is not found")}, status=400)
+
+            profile = Profile.objects.get(user=user)
+
+            next_payment_id = str(uuid.uuid4())
+            payment = Payment.objects.create(
+                payment_id=next_payment_id,
+                payment_date=timezone.now(),
+                amount=0,
+                method="Credit Card",
+            )
+
+            restaurant = cart_items.first().item.restaurant
+            if not restaurant:
+                return JsonResponse(
+                    {"error": _("Restaurant not found")}, status=400
+                )
+
+            order = Order.objects.create(
+                user=profile,
+                restaurant=restaurant,
+                total_price=0,
+                status="Pending",
+                payment=payment,
+            )
+
+            total_price = 0
+            order_items = []
+
+            for cart_item in cart_items:
+                item_price = cart_item.item.price * cart_item.quantity
+                total_price += item_price
+                if cart_item.item.quantity < cart_item.quantity:
+                    order.delete()
+                    cart_item.quantity = cart_item.item.quantity
+                    return JsonResponse({"error": _("Insufficient product quantity")}, status=500)
+
+                order_item = OrderItem(
+                    order=order,
+                    item=cart_item.item,
+                    quantity=cart_item.quantity,
+                    price=item_price,
+                )
+                order_items.append(order_item)
+
+                cart_item.item.quantity -= cart_item.quantity
+                cart_item.item.save()
+
+            with transaction.atomic():
+                OrderItem.objects.bulk_create(order_items)
+                order.total_price = total_price
+                payment.amount = total_price
+                payment.save()
+                order.save()
+
+                cart_items.all().delete()
+
+            return JsonResponse(
+                {
+                    "order_id": order.order_id,
+                    "status": _("Order created successfully"),
+                },
+                status=201,
+            )
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
