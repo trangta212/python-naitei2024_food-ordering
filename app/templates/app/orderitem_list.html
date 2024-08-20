@@ -8,6 +8,7 @@
       <div class="row d-flex justify-content-center align-items-center h-100">
         <div class="col-lg-10 col-xl-8">
           <div class="card orderitem-cart">
+            {% if order_items %}
             <div class="card-header px-4 py-5">
               <h5 class="text-muted mb-0">{% translate "Thanks for your Order, " %}<span style="color: #ffb30e;">{{ user_name }}</span>!</h5>
             </div>
@@ -72,6 +73,7 @@
                     <p class="text-muted mt-1 mb-0 small ms-xl-5">{% translate "Delivered" %}</p>
                   </div>
                 </div>
+                <button class="btn btn-lg btn-danger show-toast-btn mt-3" role="button" onclick="cancelOrder('{{ order_id }}')">{% translate "Cancel Order" %}</button>
               </div>
   
               <div class="d-flex justify-content-between pt-2">
@@ -87,13 +89,20 @@
             <div class="card-footer border-0 px-4 py-5 orderitem-cart-footer">
               <h5 class="d-flex align-items-center justify-content-end text-uppercase mb-0" style="color: rgb(189, 189, 189);">{% translate "Total paid:" %} <span class="h2 mb-0 ms-2 orderitem-total-price">${{ total_price_include_shipping }}</span></h5>
             </div>
+            {% else %}
+            <p>{% translate "order does not exist" %}</p>
+            {% endif %}
           </div>
         </div>
       </div>
     </div>
   </section>
 
+  <meta name="cancel-order" content="{% url 'app:cancel_order' %}">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+
 
 <script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
 <script src="{% static 'js/order/updateCart.js' %}"></script>
+<script src="{% static 'js/order/cancelOrder.js' %}"></script>
 {% endblock %}
