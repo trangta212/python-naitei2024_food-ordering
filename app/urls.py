@@ -31,4 +31,6 @@ urlpatterns += [
     path('add-to-cart/', views.add_to_cart, name='add_to_cart'),
     path('cart', views.CartView.as_view(), name='cart'),
     path('update-cart/', views.update_cart, name='update_cart'),
+    path('order/<int:order_id>/', views.OrderView.as_view(), name='order'),
+    path('create-order/', views.create_order, name='create_order'),
 ]
