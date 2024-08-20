@@ -13,11 +13,20 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <div class="d-flex flex-grow-1 justify-content-center align-items-center">
-                <form class="d-flex w-100 max-w-lg">
-                    <div class="input-group-icon pe-2 w-100">
-                        <i class="fas fa-search input-box-icon text-primary"></i>
-                        <input class="form-control border-0 input-box bg-100" type="search" placeholder="Search Food"
-                        aria-label="Search" />
+                <form action="{% url 'app:search' %}" method="get" class="d-flex mt-4 mt-lg-0 ms-lg-auto ms-xl-0 align-items-center">
+                    <div class="input-group">
+                        <input
+                            class="form-control border-0 input-box bg-100"
+                            type="search"
+                            id="search-input"
+                            name="q"
+                            placeholder="Search Food"
+                            aria-label="Search"
+                            value="{{ request.GET.q }}"
+                        />
+                        <button class="btn btn-outline-secondary border-0" type="submit">
+                            <i class="fas fa-search text-primary"></i>
+                        </button>
                     </div>
                 </form>
             </div>

@@ -1,0 +1,22 @@
+.search-results-heading {
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.card-span {
+    max-width: 200px;
+    margin: auto;
+}
+
+.card-img-overlay img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+}
+
+.logo {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+}
