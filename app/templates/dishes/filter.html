@@ -27,7 +27,7 @@
                                                 <span class="text-primary">${{ item.price }}</span>
                                             </h5>
                                             <small class="fst-italic">{{ item.description|default:_("No description available") }}</small>
-                                            <div class="d-grid gap-2"><a class="btn btn-lg btn-danger" href="#!" role="button">{% trans "Order now" %}</a></div>
+                                            <div class="d-grid gap-2"><button class="btn btn-lg btn-danger show-toast-btn" role="button" onclick="addToCart('{{ item.item_id }}')">{% translate "Order now" %}</button></div>
                                         </div>
                                     </div>
                                 </div>
@@ -46,6 +46,7 @@
         <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
     </div>
 </div>
+<div class="toast-container position-fixed top-0 end-0 p-3" id="toastContainer" style="z-index: 1050;"></div>
 
 <!-- JavaScript Libraries -->
 <script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
@@ -58,6 +59,12 @@
 <script src="{% static 'js/lib/moment.min.js' %}"></script>
 <script src="{% static 'js/lib/moment-timezone.min.js' %}"></script>
 <script src="{% static 'js/lib/tempusdominus-bootstrap-4.min.js' %}"></script>
+
+
+<script src="{% static 'js/order/toast.js' %}"></script>
+<meta name="add-to-cart-url" content="{% url 'app:add_to_cart' %}">
+<meta name="csrf-token" content="{{ csrf_token }}">
+<script src="{% static 'js/menu/addToCart.js' %}"></script>
 
 <!-- Template Javascript -->
 <script src="{% static 'js/main.js' %}"></script>

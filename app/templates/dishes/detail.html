@@ -24,11 +24,20 @@
                         {{ description }}
                     </ul>
                     <div class="buttons row">
-                        <button type="submit" class="btn btn-primary col-lg-5">{% trans "Add to Cart" %}</button>
-                        <button class="btn btn-primary col-lg-5 ml-2">{% trans "Buy Now" %}</button>
+                        <button class="btn btn-lg btn-danger show-toast-btn" role="button" onclick="addToCart('{{ item_id }}')">{% trans "Order now" %}</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+<div class="toast-container position-fixed top-0 end-0 p-3" id="toastContainer" style="z-index: 1050;"></div>
+
+<script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/order/toast.js' %}"></script>
+
+<meta name="add-to-cart-url" content="{% url 'app:add_to_cart' %}">
+<meta name="csrf-token" content="{{ csrf_token }}">
+<script src="{% static 'js/menu/addToCart.js' %}"></script>
 {% endblock content %}
