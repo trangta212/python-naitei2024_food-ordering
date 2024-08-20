@@ -13,7 +13,7 @@ function cancelOrder(orderId) {
         success: function(result) {
             console.log('Update successful:', result);
             if (result.success) {
-              location.reload();
+              window.location.href = '/'
             } else {
                 console.error('Failed to cancel order:', result.message);
             }

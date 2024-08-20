@@ -1,6 +1,6 @@
 function addToCart(itemId) {
-    const url = document.querySelector('meta[name="add-to-cart-url"]').getAttribute('content');
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const url = $('meta[name="add-to-cart-url"]').attr('content');
+    const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
     fetch(url, {
         method: 'POST',
@@ -11,5 +11,10 @@ function addToCart(itemId) {
         body: new URLSearchParams({
             'item_id': itemId
         })
-    });
+    })
+    .then(response => {
+        if (response.redirected) {
+            window.location.href = response.url;
+        }
+    })
 }
