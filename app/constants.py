@@ -19,3 +19,19 @@ STATUS_LENGTH = 50
 TOP_RATED_ITEMS_LENGTH = 20
 CART_VIEW_PAGINATE = 3
 SHIPPING = 5
+HIGHLIGHT_DISH = [
+    "pizza",
+    "burger",
+    "noodles",
+    "sub-sandwiches",
+    "chowmein",
+    "steak",
+]
+HIGHLIGHT_DISH_IMG = [
+    "images/gallery/search-pizza.png",
+    "images/gallery/burger.png",
+    "images/gallery/noodles.png",
+    "images/gallery/sub-sandwich.png",
+    "images/gallery/chowmein.png",
+    "images/gallery/steak.png",
+]

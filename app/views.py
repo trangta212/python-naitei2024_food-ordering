@@ -32,7 +32,13 @@ from .models import (
     Order,
     Payment,
 )
-from .constants import TOP_RATED_ITEMS_LENGTH, CART_VIEW_PAGINATE, SHIPPING
+from .constants import (
+    TOP_RATED_ITEMS_LENGTH,
+    CART_VIEW_PAGINATE,
+    SHIPPING,
+    HIGHLIGHT_DISH,
+    HIGHLIGHT_DISH_IMG,
+)
 
 
 def index(request):
@@ -42,12 +48,30 @@ def index(request):
         :TOP_RATED_ITEMS_LENGTH
     ]
 
+    highlight_categories = Category.objects.filter(
+        category_name__in=HIGHLIGHT_DISH
+    )
+    category_ids = {
+        category.category_name: category.category_id
+        for category in highlight_categories
+    }
+    category_img = dict(zip(HIGHLIGHT_DISH, HIGHLIGHT_DISH_IMG))
+    categories_info = {
+        name: {
+            "id": category_ids.get(name, None),
+            "img": category_img.get(name, None),
+        }
+        for name in HIGHLIGHT_DISH
+    }
     context = {
         "popular_items": top_rated_items,
+        "categories_info": categories_info,
     }
     return render(request, "index.html", context=context)
 
+
 User = get_user_model()
+
 
 def register_view(request):
     if request.method == "POST":
@@ -132,33 +156,32 @@ class DishDetail(View):
             "description": description,
             "price": price,
             "image_url": image_url,
+            "item_id": item_id,
         }
         return render(request, "dishes/detail.html", context)
-    
+
 
 def search_view(request):
-    query = request.GET.get('q')  # Search by name
-    category_id = request.GET.get('category')  # Filter by category
-    price_order = request.GET.get('price_order')  # Sort by price
+    query = request.GET.get("q")  # Search by name
+    category_id = request.GET.get("category")  # Filter by category
+    price_order = request.GET.get("price_order")  # Sort by price
 
     items = MenuItem.objects.all()
 
     if query:
         items = MenuItem.objects.filter(
             name__icontains=query
-        ) | MenuItem.objects.filter(
-            description__icontains=query
-        )
+        ) | MenuItem.objects.filter(description__icontains=query)
     categories = Category.objects.all()
 
     if category_id:
         items = items.filter(categories=category_id)
 
     if price_order:
-        if price_order == 'asc':
-            items = items.order_by('price')
-        elif price_order == 'desc':
-            items = items.order_by('-price')
+        if price_order == "asc":
+            items = items.order_by("price")
+        elif price_order == "desc":
+            items = items.order_by("-price")
 
     context = {
         "items": items,
@@ -166,6 +189,7 @@ def search_view(request):
         "categories": categories,
     }
     return render(request, "search/search.html", context)
+
 
 @csrf_exempt
 @login_required
@@ -318,7 +342,7 @@ class OrderView(LoginRequiredMixin, generic.ListView):
                 },
                 status=403,
             )
-        
+
         if user:
             return OrderItem.objects.filter(order__order_id=order_id)
         else:
@@ -336,6 +360,7 @@ class OrderView(LoginRequiredMixin, generic.ListView):
         context["total_price"] = order.total_price
         context["total_price_include_shipping"] = order.total_price + SHIPPING
         return context
+
 
 @login_required
 def create_order(request):
