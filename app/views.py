@@ -8,6 +8,7 @@ from django.db.models import Count
 from django.views import View, generic
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.utils.translation import gettext as _
 
@@ -166,11 +167,13 @@ def search_view(request):
     }
     return render(request, "search/search.html", context)
 
+@csrf_exempt
+@login_required
 def add_to_cart(request):
     if request.method == "POST":
         item_id = request.POST.get("item_id")
 
-        user = User.objects.first()
+        user = request.user
 
         cart, created = Cart.objects.get_or_create(user=user)
 
@@ -195,10 +198,11 @@ def add_to_cart(request):
 
 
 @csrf_exempt
+@login_required
 def update_cart(request):
     try:
         data = json.loads(request.body)
-        user = User.objects.first()
+        user = request.user
         cart, created = Cart.objects.get_or_create(user=user)
 
         if request.method == "POST":
@@ -252,16 +256,16 @@ def update_cart(request):
         return JsonResponse({"success": False, "message": translated_message})
 
 
-class CartView(generic.ListView):
+class CartView(LoginRequiredMixin, generic.ListView):
     """View function for home page of site."""
 
     paginate_by = CART_VIEW_PAGINATE
     context_object_name = "cart_items"
 
     def get_queryset(self):
-        first_user = User.objects.first()
-        if first_user:
-            return CartItem.objects.filter(cart__user=first_user)
+        user = self.request.user
+        if user:
+            return CartItem.objects.filter(cart__user=user)
         else:
             return CartItem.objects.none()
 
@@ -295,7 +299,7 @@ class DishFilter(View):
         return render(request, "dishes/filter.html", context)
 
 
-class OrderView(generic.ListView):
+class OrderView(LoginRequiredMixin, generic.ListView):
     """View function for home page of site."""
 
     paginate_by = CART_VIEW_PAGINATE
@@ -303,20 +307,31 @@ class OrderView(generic.ListView):
 
     def get_queryset(self):
         order_id = self.kwargs["order_id"]
-        first_user = User.objects.first()
-        if first_user:
+        user = self.request.user
+
+        if Order.objects.get(order_id=order_id).user.user != user:
+            return JsonResponse(
+                {
+                    "error": _(
+                        "You do not have permission to cancel this order."
+                    )
+                },
+                status=403,
+            )
+        
+        if user:
             return OrderItem.objects.filter(order__order_id=order_id)
         else:
             return OrderItem.objects.none()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        first_user = User.objects.first()
-        first_profile = Profile.objects.filter(user=first_user).first()
-        order = Order.objects.filter(user=first_profile).first()
+        user = self.request.user
+        profile = Profile.objects.filter(user=user).first()
+        order = Order.objects.filter(user=profile).first()
 
         context["order_id"] = self.kwargs["order_id"]
-        context["user_name"] = first_profile.name
+        context["user_name"] = profile.name
 
         context["total_price"] = order.total_price
         context["total_price_include_shipping"] = order.total_price + SHIPPING
