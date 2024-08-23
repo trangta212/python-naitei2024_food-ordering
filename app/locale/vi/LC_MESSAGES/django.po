@@ -3,7 +3,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-21 13:19+0700\n"
+"POT-Creation-Date: 2024-08-23 16:19+0700\n"
 "Language: vi\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -25,7 +25,7 @@ msgid "Confirm Password"
 msgstr "Xác nhận mật khẩu"
 
 #: .\app\templates\app\cartitem_list.html:14
-#: .\app\templates\components\header.html:37
+#: .\app\templates\components\header.html:40
 msgid "Cart"
 msgstr "Giỏ hàng"
 
@@ -130,15 +130,21 @@ msgstr "Người dùng không tồn tại."
 msgid "foodwaGon"
 msgstr ""
 
-#: .\app\templates\components\header.html:40
+#: .\app\templates\components\header.html:35
+#, fuzzy
+#| msgid "Menu for"
+msgid "Menu"
+msgstr "Thực đơn cho"
+
+#: .\app\templates\components\header.html:43
 msgid "Logout"
 msgstr "Đăng xuất"
 
-#: .\app\templates\components\header.html:45
+#: .\app\templates\components\header.html:48
 msgid "Login"
 msgstr "Đăng nhập"
 
-#: .\app\templates\components\header.html:48
+#: .\app\templates\components\header.html:51
 msgid "Sign Up"
 msgstr "Đăng ký"
 
@@ -178,6 +184,12 @@ msgstr "Không có mô tả."
 msgid "No items available for this category."
 msgstr "Không có mục nào có sẵn cho danh mục này."
 
+#: .\app\templates\index.html:511
+#, fuzzy
+#| msgid "No image available."
+msgid "No category available"
+msgstr "Không có hình ảnh."
+
 #: .\app\templates\registration\login.html:12
 #: .\app\templates\registration\login.html:25
 msgid "Log In"
@@ -212,6 +224,10 @@ msgstr "Kết quả tìm kiếm"
 msgid "Not Found"
 msgstr "Không tìm thấy"
 
+#: .\app\test.py:47 .\app\views.py:117
+msgid "User does not exist."
+msgstr "Người dùng không tồn tại."
+
 #: .\app\views.py:105
 #, python-brace-format
 msgid "User with {email} does not exist"
@@ -221,71 +237,67 @@ msgstr "Người dùng có {email} không tồn tại"
 msgid "Logged in"
 msgstr "Đã đăng nhập"
 
-#: .\app\views.py:114
-msgid "User does not exist."
-msgstr "Người dùng không tồn tại."
-
-#: .\app\views.py:208
+#: .\app\views.py:211
 msgid "Item sold out"
 msgstr "Sản phẩm đã bán hết"
 
-#: .\app\views.py:220
+#: .\app\views.py:223
 msgid "success"
 msgstr "thành công"
 
-#: .\app\views.py:221
+#: .\app\views.py:224
 msgid "failed"
 msgstr "thất bại"
 
-#: .\app\views.py:255
+#: .\app\views.py:258
 msgid "Cart updated successfully."
 msgstr "Giỏ hàng đã được cập nhật thành công."
 
-#: .\app\views.py:268
+#: .\app\views.py:271
 msgid "Item deleted successfully."
 msgstr "Đã xóa mục thành công."
 
-#: .\app\views.py:273
+#: .\app\views.py:276
 msgid "Item not found."
 msgstr "Không tìm thấy mục nào."
 
-#: .\app\views.py:340 .\app\views.py:461
+#: .\app\views.py:343 .\app\views.py:464
 msgid "You do not have permission to cancel this order."
 msgstr "Bạn không có quyền hủy đơn hàng này."
 
-#: .\app\views.py:374
+#: .\app\views.py:377
 #, fuzzy
 #| msgid "Item not found."
 msgid "Cart is not found"
 msgstr "Không tìm thấy mục nào."
 
-#: .\app\views.py:390
+#: .\app\views.py:393
 #, fuzzy
 #| msgid "Item not found."
 msgid "Restaurant not found"
 msgstr "Không tìm thấy mục nào."
 
-#: .\app\views.py:411
+#: .\app\views.py:414
 msgid "Insufficient product quantity"
 msgstr "Số lượng sản phẩm không đủ"
 
-#: .\app\views.py:438
+#: .\app\views.py:441
 #, fuzzy
 #| msgid "Cart updated successfully."
 msgid "Order created successfully"
 msgstr "Giỏ hàng đã được cập nhật thành công."
 
-#: .\app\views.py:480
+#: .\app\views.py:483
 #, fuzzy
 #| msgid "Cart updated successfully."
 msgid "Order has been canceled successfully"
 msgstr "Giỏ hàng đã được cập nhật thành công."
 
-#: .\app\views.py:489
+#: .\app\views.py:492
 msgid "Order cannot be canceled as it is not in Pending status."
 msgstr "Không thể hủy đơn hàng vì đơn hàng không ở trạng thái Đang chờ."
 
-#: .\app\views.py:496
+#: .\app\views.py:499
 #, fuzzy
 #| msgid "Item not found."
 msgid "Order not found"
