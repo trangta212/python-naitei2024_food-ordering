@@ -26,6 +26,8 @@ RATING_CHOICES = [
     (5, '★★★★★'),
 ]
 SHIPPING = 5
+START_RANDOM_NUMBER = 11111
+END_RANDOM_NUMBER = 99999
 HIGHLIGHT_DISH = [
     "pizza",
     "burger",

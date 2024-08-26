@@ -2,6 +2,8 @@ from django.urls import path
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
+from django.urls import include
 
 app_name = "app"
 
@@ -11,7 +13,11 @@ urlpatterns = [
     path("accounts/sign-up/", views.register_view, name="sign-up"),
     path("accounts/login/", views.login_view, name="login"),
     path("accounts/logout/", views.logout_view, name="logout"),
-    
+    path('forgot_password', views.forgot_password, name='forgot_password'),
+    path('send_otp', views.send_otp, name='send_otp'),
+    path('enter_otp', views.enter_otp, name='enter_otp'),
+    path('password_reset', views.password_reset, name='password_reset'),
+    # Các URL khác...
     path('menu', views.menu_view, name='menu'),
     path(
         'dish/<int:item_id>/',
