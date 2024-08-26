@@ -46,3 +46,99 @@
 .description{
   font-size: 15px;
 }
+
+/* review */
+.reviews-list {
+  list-style: none; /* Removes default list styling */
+  padding: 0; /* Removes default padding */
+  margin: 0; /* Removes default margin */
+}
+.reviews-members {
+  border: 1px solid #e0e0e0; /* Light border around each review */
+  border-radius: 8px; /* Rounded corners */
+  background: #ffffff; /* White background for each review */
+  margin-bottom: 16px; /* Space between reviews */
+  padding: 16px; /* Padding inside each review */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Slight shadow for depth */
+  display: flex; /* Align items horizontally */
+  align-items: flex-start; /* Align items at the top */
+}
+.media {
+  display: flex; /* Aligns avatar and content horizontally */
+  align-items: flex-start; /* Align items at the top */
+}
+.reviewer-avatar {
+  width: 50px; /* Set a specific width */
+  height: 50px; /* Set a specific height */
+  object-fit: cover; /* Ensure the image covers the element without distortion */
+  border-radius: 50%; /* Make the image round */
+  margin-right: 16px; /* Space between avatar and content */
+}
+.reviews-members-header {
+  display: flex; /* Align items horizontally */
+  justify-content: space-between; /* Space between stars and user name */
+  align-items: center; /* Center items vertically */
+  margin-bottom: 8px; /* Space below the header */
+}
+.user-info {
+  display: flex; /* Align user info horizontally */
+  align-items: center; /* Center items vertically */
+}
+.star-rating {
+  color: #f39c12; /* Gold color for stars */
+  font-size: 16px; /* Font size for stars */
+}
+.text-black {
+  color: #000000;
+}
+.mb-1 {
+  margin-bottom: 0.5rem; /* Margin below headings */
+}
+.reviews-members-body {
+  margin-top: 8px; /* Space above the comment */
+}
+.reviews-members-body p {
+  margin: 0; /* Remove default paragraph margin */
+  color: #333333; /* Dark gray text color */
+  line-height: 1.5; /* Line height for readability */
+}
+.media-body {
+  flex: 1; /* Allow the media body to take up the remaining space */
+  margin-left: 16px; /* Space between avatar and review content */
+}
+.star-rating {
+  color: #f39c12; /* Gold color for stars */
+  font-size: 16px; /* Font size for stars */
+}
+.graph-star-rating-header .star-rating {
+    font-size: 17px;
+}
+.progress {
+    background: #f2f4f8 none repeat scroll 0 0;
+    border-radius: 0;
+    height: 30px;
+}
+.rating-list {
+    display: inline-flex;
+    margin-bottom: 15px;
+    width: 100%;
+}
+.rating-list-left {
+    height: 16px;
+    line-height: 29px;
+    width: 10%;
+}
+.rating-list-center {
+    width: 80%;
+}
+.rating-list-right {
+    line-height: 29px;
+    text-align: right;
+    width: 10%;
+}
+.reviews-members .media .mr-3 {
+    width: 30px;
+    height: 30px;
+    object-fit: cover;
+}
+
