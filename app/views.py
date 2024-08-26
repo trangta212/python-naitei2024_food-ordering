@@ -11,6 +11,22 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.utils.translation import gettext as _
+from django.shortcuts import render, redirect
+from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.models import User
+from django.core.mail import send_mail
+from django.conf import settings
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+import random
+from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.models import User
+from django.core.mail import EmailMessage
+from django.conf import settings
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.utils.translation import gettext as _
+import random
 
 from app.forms import SignUpForm, LogInForm
 from django.http import JsonResponse
@@ -510,3 +526,86 @@ def order_history(request):
         'order_items': order_items
     }
     return render(request, 'app/order_history.html', context)
+def forgot_password(request):
+    return render(request, 'registration/forgot_password.html')
+
+def send_otp(request):
+    error_message = None
+    otp = random.randint(11111, 99999)
+    email = request.POST.get('email')
+    user_email = User.objects.filter(email=email)
+    
+    if user_email.exists():
+        user = user_email.get()
+        user.otp = otp
+        user.save()
+        request.session['email'] = email
+        html_message = _("Your One Time Password is {otp}").format(otp=otp)
+        subject = 'Welcome to Food Ordering'
+        email_from = settings.EMAIL_HOST_USER
+        email_to = [email]
+        message = EmailMessage(subject, html_message, email_from, email_to)
+        message.send()
+        messages.success(request, 'OTP has been sent to your email')
+        return redirect('app:enter_otp')  
+    else:
+        error_message = 'Email does not exist'
+        return render(request, 'registration/forgot_password.html', {'error': error_message})
+    
+def enter_otp(request):
+    error_message = None
+    if 'email' in request.session:
+        email = request.session['email']
+        user = User.objects.get(email=email)
+        user_otp = user.otp
+        
+        if request.method == 'POST':
+            otp = request.POST.get('otp')
+            if not otp:
+                error_message = 'OTP is required'
+            elif otp != str(user_otp):
+                error_message = 'Invalid OTP'
+            
+            if not error_message:
+                return redirect('app:password_reset')  
+            
+            return render(request, 'registration/enter_otp.html', {'error': error_message})
+        
+        return render(request, 'registration/enter_otp.html')
+    
+    return redirect('app:forgot_password')
+
+
+User = get_user_model()
+def password_reset(request):
+    error_message = None
+    if 'email' in request.session:
+        email = request.session['email']
+        user = get_object_or_404(User, email=email)
+        if request.method == 'POST':
+            new_password = request.POST.get('new_password')
+            confirm_new_password = request.POST.get('confirm_new_password')
+            
+            if not new_password:
+                error_message = 'Enter new password'
+            elif not confirm_new_password:
+                error_message = 'Enter Confirm New Password'
+            elif new_password != confirm_new_password:
+                error_message = 'Passwords do not match'
+            elif user.check_password(new_password):  
+                error_message = 'This password is already used'
+            if not error_message:
+                user.set_password(new_password)
+                user.save()
+                messages.success(request, 'Password reset successful')
+                
+                user = authenticate(email=email, password=new_password)
+                if user is not None:
+                    login(request, user)
+                    return redirect('app:index')  
+                else:
+                    messages.error(request, 'Unable to log in with new password')
+        
+        return render(request, 'registration/password_reset.html', {'error': error_message})
+    
+    return redirect('app:forgot_password')
