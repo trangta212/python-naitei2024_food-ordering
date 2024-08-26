@@ -17,7 +17,7 @@ urlpatterns = [
     path('send_otp', views.send_otp, name='send_otp'),
     path('enter_otp', views.enter_otp, name='enter_otp'),
     path('password_reset', views.password_reset, name='password_reset'),
-    # Các URL khác...
+    path('activate/<uidb64>/<token>/', views.activate, name='activate'),
     path('menu', views.menu_view, name='menu'),
     path(
         'dish/<int:item_id>/',

@@ -27,6 +27,14 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.utils.translation import gettext as _
 import random
+from .tokens import account_activation_token 
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.encoding import force_str
+from django.utils.http import urlsafe_base64_decode
+
+
 
 from app.forms import SignUpForm, LogInForm
 from django.http import JsonResponse
@@ -88,26 +96,59 @@ def index(request):
 
 User = get_user_model()
 
-
 def register_view(request):
     if request.method == "POST":
         form = SignUpForm(request.POST or None)
         if form.is_valid():
-            new_user = form.save()
-            new_user = authenticate(
-                email=form.cleaned_data.get("email"),
-                password=form.cleaned_data.get("password1"),
-            )
-            login(request, new_user)
-
+            new_user = form.save(commit=False)
+            new_user.is_active = False
+            new_user.save()
+            activateEmail(request, new_user, form.cleaned_data.get("email"))
+            messages.success(request, _("Account created successfully! Please check your email to activate your account."))
             return redirect("app:index")
-    else:
+        else:
+            for error in form.errors:
+              messages.error(request, _(error))
+    else:  
         form = SignUpForm()
-
     context = {
         "form": form,
     }
     return render(request, "registration/sign-up.html", context)
+
+def activate(request, uidb64, token):
+    User = get_user_model()
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    
+    if user is not None and account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.save()
+        login(request, user)  
+        messages.success(request, _("Account activated successfully"))
+        return redirect("app:index")  
+    else:
+        messages.error(request, _("Activation link is invalid!"))
+        return redirect("app:index") 
+
+
+def activateEmail(request, new_user, email):
+    mail_subject = 'Activate your account'
+    message = render_to_string("registration/acctivate_account.html", {
+        "user": new_user.username,
+        "domain": get_current_site(request).domain,
+        'uid': urlsafe_base64_encode(force_bytes(new_user.pk)),
+        'token': account_activation_token.make_token(new_user),
+        "protocol": "https" if request.is_secure() else "http",
+    })
+    email = EmailMessage(mail_subject, message, to=[email])
+    if email.send():
+        messages.success(request, _("Dear {name}, your account has been created successfully. Please check your email to activate your account.").format(name=new_user.username))
+    else:
+        messages.error(request, _("Error sending email. Please try again."))
 
 
 def login_view(request):
