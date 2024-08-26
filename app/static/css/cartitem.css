@@ -1,0 +1,16 @@
+.cartitem-list-qty {
+    position: absolute;
+    right: 30%;
+    top: 50%;
+    transform: translateY(-58%);
+}
+
+.cartitem-list-qty-nb {
+    position: absolute;
+    right: -5%;
+    top: 50%;
+    width: 20px;
+    transform: translateY(-58%);
+    font-size: small;
+    color: #BDBDBD;
+}
