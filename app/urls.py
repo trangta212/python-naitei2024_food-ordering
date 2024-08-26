@@ -8,9 +8,9 @@ app_name = "app"
 urlpatterns = [
     path('', views.index, name='index'),
     
-    path("sign-up/", views.register_view, name="sign-up"),
-    path("login/", views.login_view, name="login"),
-    path("logout/", views.logout_view, name="logout"),
+    path("accounts/sign-up/", views.register_view, name="sign-up"),
+    path("accounts/login/", views.login_view, name="login"),
+    path("accounts/logout/", views.logout_view, name="logout"),
     
     path('menu', views.menu_view, name='menu'),
     path(
@@ -34,4 +34,5 @@ urlpatterns += [
     path('order/<int:order_id>/', views.OrderView.as_view(), name='order'),
     path('create-order/', views.create_order, name='create_order'),
     path('cancel-order/', views.cancel_order, name='cancel_order'),
+    path('orderhistory/', views.order_history, name='order_history'),
 ]

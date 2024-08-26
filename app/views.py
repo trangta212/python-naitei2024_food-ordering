@@ -25,7 +25,7 @@ from .models import (
     Category,
     MenuItem,
     Cart,
-    User,
+    Order, OrderItem, Profile, User,
     CartItem,
     OrderItem,
     Profile,
@@ -499,3 +499,14 @@ def cancel_order(request):
             return JsonResponse({"error": _("Order not found")}, status=404)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
+
+@login_required
+def order_history(request):
+    user_profile = Profile.objects.get(user=request.user)
+    orders = Order.objects.filter(user=user_profile).order_by('-order_id')
+    order_items = OrderItem.objects.filter(order__in=orders)
+    context = {
+        'orders': orders,
+        'order_items': order_items
+    }
+    return render(request, 'app/order_history.html', context)
