@@ -109,6 +109,9 @@ def login_view(request):
         if user is not None:
             login(request, user)
             messages.success(request, _("Logged in"))
+            next_url = request.GET.get('next') or request.POST.get('next')
+            if next_url:
+                return redirect(next_url)
             return redirect("app:index")
         else:
             messages.warning(request, _("User does not exist."))
