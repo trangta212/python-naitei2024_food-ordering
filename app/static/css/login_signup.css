@@ -9,3 +9,12 @@
     width: 50%;
     height: fit-content;
 }
+
+.mb {
+    text-align: left;
+}
+
+.mb a {
+    display: inline-block; 
+    text-align: left; 
+}
