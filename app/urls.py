@@ -22,6 +22,7 @@ urlpatterns = [
          views.DishFilter.as_view(),
          name='dish_filter'),
     path('search', views.search_view, name='search'),
+    path('add-review/<int:item_id>/', views.add_review, name='add-review'),
 ] + static(
     settings.MEDIA_URL,
     document_root=settings.MEDIA_ROOT

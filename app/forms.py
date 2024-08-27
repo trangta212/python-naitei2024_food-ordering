@@ -1,7 +1,9 @@
+from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.utils.translation import gettext_lazy as _
 
-from app.models import User
+from app.constants import RATING_CHOICES
+from app.models import Review, User
 
 class SignUpForm(UserCreationForm):
     class Meta:
@@ -34,3 +36,11 @@ class LogInForm(UserCreationForm):
 
         self.fields['email'].widget.attrs.update({'class': 'form-control', 'placeholder': _('Email')})
         self.fields['password'].widget.attrs.update({'class': 'form-control', 'placeholder': _('Password')})
+
+class ReviewForm(forms.ModelForm):
+    comment = forms.CharField(widget=forms.Textarea(attrs={'placeholder': "Write a review"}))
+    rating = forms.ChoiceField(choices=RATING_CHOICES, widget=forms.Select())
+
+    class Meta:
+        model = Review
+        fields = ['comment', 'rating']

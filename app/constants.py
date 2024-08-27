@@ -18,6 +18,13 @@ METHOD_LENGTH = 50
 STATUS_LENGTH = 50
 TOP_RATED_ITEMS_LENGTH = 20
 CART_VIEW_PAGINATE = 3
+RATING_CHOICES = [
+    (1, '★☆☆☆☆'),
+    (2, '★★☆☆☆'),
+    (3, '★★★☆☆'),
+    (4, '★★★★☆'),
+    (5, '★★★★★'),
+]
 SHIPPING = 5
 HIGHLIGHT_DISH = [
     "pizza",

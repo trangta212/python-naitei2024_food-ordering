@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.shortcuts import redirect, render, get_object_or_404
 from django.db.models import Count
+from django.urls import reverse
 from django.views import View, generic
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
@@ -12,12 +13,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.utils.translation import gettext as _
 
-from app.forms import SignUpForm, LogInForm
+from app.forms import ReviewForm, SignUpForm, LogInForm
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Avg, Count
 from django.db import transaction, models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
@@ -25,7 +26,8 @@ from .models import (
     Category,
     MenuItem,
     Cart,
-    Order, OrderItem, Profile, User,
+    Order, OrderItem, Profile,
+    Review, User,
     CartItem,
     OrderItem,
     Profile,
@@ -154,13 +156,37 @@ class DishDetail(View):
         description = menu_item.description
         price = menu_item.price
         image_url = menu_item.image_url
+
+        item = MenuItem.objects.get(pk=item_id)
+        user = request.user
+        user_profile = Profile.objects.get(user=user)
+        review_exists = Review.objects.filter(user=user_profile, item=item).exists()
+        review_form = ReviewForm()
+        reviews = Review.objects.filter(item=menu_item)
+        rating_percentages = {i: 0 for i in range(1, 6)}
+        ratings = Review.objects.values('rating').annotate(count=Count('rating')).order_by('rating')
+        for rating in ratings:
+            percentage = (rating['count'] / len(reviews)) * 100
+            rating_percentages[rating['rating']] = percentage
+        avg_rating = Review.objects.filter(item=menu_item).aggregate(rating=Avg("rating"))
+        review = {
+            "total_review": len(reviews),
+            "reviews": reviews,
+            "avg_rating": avg_rating,
+            "rating_percentages": rating_percentages
+        }
+
         context = {
+            "item": menu_item,
             "name": name,
             "description": description,
             "price": price,
             "image_url": image_url,
-            "item_id": item_id,
+            "review": review,
+            'review_form': review_form,
+            'review_exists': review_exists
         }
+        
         return render(request, "dishes/detail.html", context)
 
 
@@ -499,6 +525,38 @@ def cancel_order(request):
             return JsonResponse({"error": _("Order not found")}, status=404)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
+
+def add_review(request, item_id):
+    item = MenuItem.objects.get(pk=item_id)
+    user = request.user
+    user_profile = Profile.objects.get(user=user)
+
+    if request.method == 'POST':
+        if Review.objects.filter(user=user_profile, item=item).exists():
+            return JsonResponse({
+                'bool': False,
+                'error': 'You have already submitted a review for this item.'
+            }, status=400)
+        
+        review = Review.objects.create(
+            user=user_profile,
+            item=item,
+            rating=request.POST.get('rating'),
+            comment=request.POST.get('comment'),
+        )
+
+        avg_review = Review.objects.filter(item=item).aggregate(rating=Avg("rating"))
+        return JsonResponse({
+            'bool': True,
+            'context': {
+                'user': user.username,
+                'comment': request.POST.get('comment'),
+                'rating': request.POST.get('rating'),
+            },
+            'avg_review': avg_review['rating'],
+        })
+    
+    return JsonResponse({'bool': False, 'error': 'Invalid request method.'}, status=400)
 
 @login_required
 def order_history(request):
