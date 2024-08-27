@@ -42,4 +42,5 @@ urlpatterns += [
     path('create-order/', views.create_order, name='create_order'),
     path('cancel-order/', views.cancel_order, name='cancel_order'),
     path('orderhistory/', views.order_history, name='order_history'),
+    path('res/order', views.ResOrderView.as_view(), name='res_order'),
 ]

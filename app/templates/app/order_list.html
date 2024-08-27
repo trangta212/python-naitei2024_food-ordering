@@ -1,0 +1,69 @@
+{% extends 'base.html' %} {% load i18n %} {% load static %} {% block content %}
+{% block extra_css %} 
+    <link rel="stylesheet" href="{% static 'css/resOrderList.css' %}">
+{% endblock %}
+
+<section class="h-100 gradient-custom">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-lg-10 col-xl-8">
+          <div class="card orderitem-cart">
+            <div class="card-header px-4 py-5">
+              <div class="d-flex justify-content-between">
+                <h5 class="text-muted mb-0 d-flex justify-content-center align-items-center">{% translate "Orders" %}: {{ order_count }}</h5>
+                <a href="{% url 'app:order_history' %}" class="btn btn-white shadow-warning text-warning me-2">
+                    <i class="fas fa-sign-out-alt me-2"></i>{% trans "My Orders" %}
+                </a>
+              </div>
+            </div>
+            <div class="card-body p-4">
+              <div class="card shadow-0 border mb-4">
+                <div class="card-body">
+                    {% for item in orders %}
+                  <a href="">
+                    <div class="row">
+                        <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
+                            <p class="text-muted mb-0">#{{ item.order_id }}</p>
+                        </div>
+                        <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
+                          <p class="text-muted mb-0 small wrap-text">{{ item.user.name }}</p>
+                        </div>
+                        <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
+                            <p class="text-muted mb-0 small wrap-text">{{ item.user.phone_number }}</p>
+                          </div>
+                        <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
+                            <p class="text-muted mb-0 small wrap-text">{{ item.user.address }}</p>
+                        </div>
+                        <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
+                          <p class="text-muted mb-0 small wrap-text">{{ item.status }}</p>
+                        </div>
+                        <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
+                          <p class="text-muted mb-0 small wrap-text">${{ item.total_price }}</p>
+                        </div>
+                      </div>
+                  </a>
+                  <hr class="mb-4 orderitem-hr">
+                    {% endfor %}
+                </div>
+              </div>
+              <div class="pagination justify-content-center">
+                <span class="step-links cart-pagination-text">
+                    {% if page_obj.has_previous %}
+                        <a class="cart-pagination-link" href="{{ request.path }}?page={{ page_obj.previous_page_number }}">{% translate "previous" %}</a>
+                    {% endif %}
+            
+                    <span class="current">
+                      {% translate "Page" %} {{ page_obj.number }} {% translate "of" %} {{ page_obj.paginator.num_pages }}.
+                    </span>
+            
+                    {% if page_obj.has_next %}
+                        <a class="cart-pagination-link" href="{{ request.path }}?page={{ page_obj.next_page_number }}">next</a>
+                    {% endif %}
+                </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}
