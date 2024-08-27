@@ -12,7 +12,15 @@ function stepUp(button, itemId) {
     changedInputs.add(itemId);
 }
 
-function changeQuantity(itemId) {
+function changeQuantity(input, max, itemId) {
+    var value = parseInt(input.value);
+
+    if (value < 0) {
+        input.value = 0;
+    } else if (value > max) {
+        input.value = max;
+    }
+    
     changedInputs.add(itemId);
 }
 
@@ -81,7 +89,7 @@ function deleteClick(itemId) {
         success: function(result) {
             console.log('Delete successful:', result);
             if (result.success) {
-                location.reload();
+                window.location.href = "/cart";
             } else {
                 console.error('Failed to delete item:', result.message);
             }
