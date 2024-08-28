@@ -40,11 +40,9 @@ from .models import (
     Category,
     MenuItem,
     Cart,
-    Order,
-    OrderItem,
-    Profile,
-    Review,
-    User,
+    Restaurant,
+    Order, OrderItem, Profile,
+    Review, User,
     CartItem,
     OrderItem,
     Profile,
@@ -60,6 +58,7 @@ from .constants import (
     HIGHLIGHT_DISH_IMG,
     START_RANDOM_NUMBER,
     END_RANDOM_NUMBER,
+    TOP_RECENT_ORDER,
     RES_ORDER_VIEW_PAGINATE,
 )
 
@@ -652,6 +651,24 @@ def order_history(request):
         'order_items': order_items
     }
     return render(request, 'app/order_history.html', context)
+
+def dashboard(request):
+    profile = Profile.objects.get(user=request.user)
+    restaurant = Restaurant.objects.get(profile=profile)
+    total_revenue = Payment.objects.filter(order__restaurant=restaurant).aggregate(Sum('amount'))['amount__sum'] or 0
+    menu_item_count = MenuItem.objects.filter(restaurant=restaurant).count()
+    total_order_count = Order.objects.filter(restaurant=restaurant).count()
+    recent_orders = Order.objects.filter(restaurant=restaurant).order_by('-order_id')[:TOP_RECENT_ORDER]
+
+    context = {
+        'total_revenue': total_revenue,
+        'menu_item': menu_item_count,
+        'total_order': total_order_count,
+        'recent_orders': recent_orders
+    }
+    
+    return render(request, 'restaurant/dashboard.html', context)
+
 def forgot_password(request):
     return render(request, 'registration/forgot_password.html')
 
