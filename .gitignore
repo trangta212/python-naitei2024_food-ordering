@@ -163,3 +163,4 @@ cython_debug/
 .DS_Store
 .vscode/*
 load_db.py
+app/static/images/uploads/*

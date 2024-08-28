@@ -44,3 +44,7 @@ urlpatterns += [
     path('orderhistory/', views.order_history, name='order_history'),
     path('res/order', views.ResOrderView.as_view(), name='res_order'),
 ]
+
+urlpatterns += [
+    path('dashboard', views.dashboard, name='dashboard')
+]
