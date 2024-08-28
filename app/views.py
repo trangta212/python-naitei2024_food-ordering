@@ -41,8 +41,11 @@ from .models import (
     MenuItem,
     Cart,
     Restaurant,
-    Order, OrderItem, Profile,
-    Review, User,
+    Order,
+    OrderItem,
+    Profile,
+    Review,
+    User,
     CartItem,
     OrderItem,
     Profile,
@@ -94,6 +97,7 @@ def index(request):
 
 User = get_user_model()
 
+
 def register_view(request):
     if request.method == "POST":
         form = SignUpForm(request.POST or None)
@@ -102,17 +106,23 @@ def register_view(request):
             new_user.is_active = False
             new_user.save()
             activateEmail(request, new_user, form.cleaned_data.get("email"))
-            messages.success(request, _("Account created successfully! Please check your email to activate your account."))
+            messages.success(
+                request,
+                _(
+                    "Account created successfully! Please check your email to activate your account."
+                ),
+            )
             return redirect("app:index")
         else:
             for error in form.errors:
-              messages.error(request, _(error))
-    else:  
+                messages.error(request, _(error))
+    else:
         form = SignUpForm()
     context = {
         "form": form,
     }
     return render(request, "registration/sign-up.html", context)
+
 
 def activate(request, uidb64, token):
     User = get_user_model()
@@ -121,30 +131,38 @@ def activate(request, uidb64, token):
         user = User.objects.get(pk=uid)
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
-    
+
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
         user.save()
-        login(request, user)  
+        login(request, user)
         messages.success(request, _("Account activated successfully"))
-        return redirect("app:index")  
+        return redirect("app:index")
     else:
         messages.error(request, _("Activation link is invalid!"))
-        return redirect("app:index") 
+        return redirect("app:index")
 
 
 def activateEmail(request, new_user, email):
-    mail_subject = 'Activate your account'
-    message = render_to_string("registration/acctivate_account.html", {
-        "user": new_user.username,
-        "domain": get_current_site(request).domain,
-        'uid': urlsafe_base64_encode(force_bytes(new_user.pk)),
-        'token': account_activation_token.make_token(new_user),
-        "protocol": "https" if request.is_secure() else "http",
-    })
+    mail_subject = "Activate your account"
+    message = render_to_string(
+        "registration/acctivate_account.html",
+        {
+            "user": new_user.username,
+            "domain": get_current_site(request).domain,
+            "uid": urlsafe_base64_encode(force_bytes(new_user.pk)),
+            "token": account_activation_token.make_token(new_user),
+            "protocol": "https" if request.is_secure() else "http",
+        },
+    )
     email = EmailMessage(mail_subject, message, to=[email])
     if email.send():
-        messages.success(request, _("Dear {name}, your account has been created successfully. Please check your email to activate your account.").format(name=new_user.username))
+        messages.success(
+            request,
+            _(
+                "Dear {name}, your account has been created successfully. Please check your email to activate your account."
+            ).format(name=new_user.username),
+        )
     else:
         messages.error(request, _("Error sending email. Please try again."))
 
@@ -451,12 +469,21 @@ class OrderView(LoginRequiredMixin, generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        order_id = self.kwargs["order_id"]
         user = self.request.user
         profile = Profile.objects.filter(user=user).first()
-        order = Order.objects.filter(user=profile).first()
+        order = Order.objects.get(order_id=order_id)
+
+        status_bar_value = 100
+        if order.status == "Pending":
+            status_bar_value = 20
+        elif order.status == "Out for delivery":
+            status_bar_value = 50
 
         context["order_id"] = self.kwargs["order_id"]
         context["user_name"] = profile.name
+        context["status_bar_value"] = status_bar_value
+        context["status"] = order.status
 
         context["total_price"] = order.total_price
         context["total_price_include_shipping"] = order.total_price + SHIPPING
@@ -646,112 +673,136 @@ def order_history(request):
     user_profile = Profile.objects.get(user=request.user)
     orders = Order.objects.filter(user=user_profile).order_by("-order_id")
     order_items = OrderItem.objects.filter(order__in=orders)
-    context = {
-        'orders': orders,
-        'order_items': order_items
-    }
-    return render(request, 'app/order_history.html', context)
+    context = {"orders": orders, "order_items": order_items}
+    return render(request, "app/order_history.html", context)
+
 
 def dashboard(request):
     profile = Profile.objects.get(user=request.user)
     restaurant = Restaurant.objects.get(profile=profile)
-    total_revenue = Payment.objects.filter(order__restaurant=restaurant).aggregate(Sum('amount'))['amount__sum'] or 0
+    total_revenue = (
+        Payment.objects.filter(order__restaurant=restaurant).aggregate(
+            Sum("amount")
+        )["amount__sum"]
+        or 0
+    )
     menu_item_count = MenuItem.objects.filter(restaurant=restaurant).count()
     total_order_count = Order.objects.filter(restaurant=restaurant).count()
-    recent_orders = Order.objects.filter(restaurant=restaurant).order_by('-order_id')[:TOP_RECENT_ORDER]
+    recent_orders = Order.objects.filter(restaurant=restaurant).order_by(
+        "-order_id"
+    )[:TOP_RECENT_ORDER]
 
     context = {
-        'total_revenue': total_revenue,
-        'menu_item': menu_item_count,
-        'total_order': total_order_count,
-        'recent_orders': recent_orders
+        "total_revenue": total_revenue,
+        "menu_item": menu_item_count,
+        "total_order": total_order_count,
+        "recent_orders": recent_orders,
     }
-    
-    return render(request, 'restaurant/dashboard.html', context)
+
+    return render(request, "restaurant/dashboard.html", context)
+
 
 def forgot_password(request):
-    return render(request, 'registration/forgot_password.html')
+    return render(request, "registration/forgot_password.html")
+
 
 def send_otp(request):
     error_message = None
     otp = random.randint(START_RANDOM_NUMBER, END_RANDOM_NUMBER)
-    email = request.POST.get('email')
+    email = request.POST.get("email")
     user_email = User.objects.filter(email=email)
 
     if user_email.exists():
         user = user_email.get()
         user.otp = otp
         user.save()
-        request.session['email'] = email
+        request.session["email"] = email
         html_message = _("Your One Time Password is {otp}").format(otp=otp)
-        subject = _('Welcome to Food Ordering')
+        subject = _("Welcome to Food Ordering")
         email_from = settings.EMAIL_HOST_USER
         email_to = [email]
         message = EmailMessage(subject, html_message, email_from, email_to)
         message.send()
-        messages.success(request, _('OTP has been sent to your email'))
-        return redirect('app:enter_otp')  
+        messages.success(request, _("OTP has been sent to your email"))
+        return redirect("app:enter_otp")
     else:
-        error_message = _('Email does not exist')
-        return render(request, 'registration/forgot_password.html', {'error': error_message})
+        error_message = _("Email does not exist")
+        return render(
+            request,
+            "registration/forgot_password.html",
+            {"error": error_message},
+        )
+
 
 def enter_otp(request):
     error_message = None
-    if 'email' in request.session:
-        email = request.session['email']
+    if "email" in request.session:
+        email = request.session["email"]
         user = User.objects.get(email=email)
         user_otp = user.otp
 
-        if request.method == 'POST':
-            otp = request.POST.get('otp')
+        if request.method == "POST":
+            otp = request.POST.get("otp")
             if not otp:
-                error_message = _('OTP is required')
+                error_message = _("OTP is required")
             elif otp != str(user_otp):
-                error_message = _('Invalid OTP')
+                error_message = _("Invalid OTP")
 
             if not error_message:
-                return redirect('app:password_reset')  
+                return redirect("app:password_reset")
 
-            return render(request, 'registration/enter_otp.html', {'error': error_message})
+            return render(
+                request,
+                "registration/enter_otp.html",
+                {"error": error_message},
+            )
 
-        return render(request, 'registration/enter_otp.html')
+        return render(request, "registration/enter_otp.html")
 
-    return redirect('app:forgot_password')
+    return redirect("app:forgot_password")
 
 
 User = get_user_model()
+
+
 def password_reset(request):
     error_message = None
-    if 'email' in request.session:
-        email = request.session['email']
+    if "email" in request.session:
+        email = request.session["email"]
         user = get_object_or_404(User, email=email)
-        if request.method == 'POST':
-            new_password = request.POST.get('new_password')
-            confirm_new_password = request.POST.get('confirm_new_password')
+        if request.method == "POST":
+            new_password = request.POST.get("new_password")
+            confirm_new_password = request.POST.get("confirm_new_password")
 
             if not new_password:
-                error_message = _('Enter new password')
+                error_message = _("Enter new password")
             elif not confirm_new_password:
-                error_message = _('Enter Confirm New Password')
+                error_message = _("Enter Confirm New Password")
             elif new_password != confirm_new_password:
-                error_message = _('Passwords do not match')
-            elif user.check_password(new_password):  
-                error_message = _('This password is already used')
+                error_message = _("Passwords do not match")
+            elif user.check_password(new_password):
+                error_message = _("This password is already used")
             if not error_message:
                 user.set_password(new_password)
                 user.save()
-                messages.success(request, _('Password reset successful'))
+                messages.success(request, _("Password reset successful"))
 
                 user = authenticate(email=email, password=new_password)
                 if user is not None:
                     login(request, user)
-                    return redirect('app:index')  
+                    return redirect("app:index")
                 else:
-                    messages.error(request, _('Unable to log in with new password'))
+                    messages.error(
+                        request, _("Unable to log in with new password")
+                    )
 
-        return render(request, 'registration/password_reset.html', {'error': error_message})
+        return render(
+            request,
+            "registration/password_reset.html",
+            {"error": error_message},
+        )
 
-    return redirect('app:forgot_password')
+    return redirect("app:forgot_password")
 
 
 class ResOrderView(LoginRequiredMixin, generic.ListView):
@@ -776,15 +827,108 @@ class ResOrderView(LoginRequiredMixin, generic.ListView):
                 status=403,
             )
 
-        return Order.objects.filter(restaurant=restaurant).order_by('order_id')
+        return Order.objects.filter(restaurant=restaurant).order_by("order_id")
 
     def get_context_data(self, **kwargs):
         queryset = self.get_queryset()
         if queryset is None:
-            return HttpResponseForbidden("You are not authorized to view this page.")
-        
+            return HttpResponseForbidden(
+                "You are not authorized to view this page."
+            )
+
         order_count = queryset.count()
 
         context = super().get_context_data(**kwargs)
         context["order_count"] = order_count
         return context
+
+
+class ResOrderDetailView(LoginRequiredMixin, generic.ListView):
+    paginate_by = CART_VIEW_PAGINATE
+    context_object_name = "order_items"
+    template_name = "restaurant/order-detail.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        order_id = kwargs.get("order_id")
+        order = Order.objects.get(order_id=order_id)
+
+        if order.user.user != request.user:
+            return JsonResponse(
+                {
+                    "error": _(
+                        "You do not have permission to cancel this order."
+                    )
+                },
+                status=403,
+            )
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        order_id = self.kwargs["order_id"]
+        user = self.request.user
+
+        if Order.objects.get(order_id=order_id).user.user != user:
+            return OrderItem.objects.none()
+
+        if user:
+            return OrderItem.objects.filter(order__order_id=order_id).order_by(
+                "order_id"
+            )
+        else:
+            return OrderItem.objects.none()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        order_id = self.kwargs["order_id"]
+        user = self.request.user
+        profile = Profile.objects.filter(user=user).first()
+        order = Order.objects.get(order_id=order_id)
+
+        status_bar_value = 100
+        if order.status == "Pending":
+            status_bar_value = 20
+        elif order.status == "Out for delivery":
+            status_bar_value = 50
+
+        context["order_id"] = order_id
+        context["user_name"] = profile.name
+        context["status_bar_value"] = status_bar_value
+        context["status"] = order.status
+
+        context["total_price"] = order.total_price
+        context["total_price_include_shipping"] = order.total_price + SHIPPING
+        return context
+
+
+@login_required
+def changeStatus(request):
+    if request.user.role != "Restaurant":
+        return JsonResponse(
+            {"error": _("You are not authorized to view this page.")},
+            status=403,
+        )
+
+    data = json.loads(request.body)
+    order_id = data.get("order_id")
+    status = data.get("status")
+    order = Order.objects.get(order_id=order_id)
+
+    if order.restaurant.profile.user != request.user:
+        return JsonResponse(
+            {"error": _("You do not have permission to update this order.")},
+            status=403,
+        )
+
+    order.status = status
+    order.save()
+
+    return JsonResponse(
+        {
+            "order_id": order_id,
+            "success": True,
+            "status": _("Order has been updated successfully"),
+            "order_status": order.status,
+        },
+        status=200,
+    )

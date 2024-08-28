@@ -18,7 +18,7 @@
               <div class="order-list">
                 {% for order in orders %}
                 <div class="order">
-                  <h5>{%trans "Order #" %}{{ order.order_id }} ({{ order.status }})</h5>
+                  <a href="{% url 'app:order' order.order_id %}"><h5>{%trans "Order #" %}{{ order.order_id }} ({{ order.status }})</h5></a>
                   <h6><strong>{%trans "Restaurant:" %}</strong> {{ order.restaurant.profile.name }}</h6>
                   <ul class="order-items">
                     {% for item in order_items %}
