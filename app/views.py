@@ -28,7 +28,7 @@ from .tokens import account_activation_token
 
 
 from app.forms import ReviewForm, SignUpForm, LogInForm
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
@@ -40,13 +40,17 @@ from .models import (
     Category,
     MenuItem,
     Cart,
-    Order, OrderItem, Profile,
-    Review, User,
+    Order,
+    OrderItem,
+    Profile,
+    Review,
+    User,
     CartItem,
     OrderItem,
     Profile,
     Order,
     Payment,
+    Restaurant,
 )
 from .constants import (
     TOP_RATED_ITEMS_LENGTH,
@@ -55,7 +59,8 @@ from .constants import (
     HIGHLIGHT_DISH,
     HIGHLIGHT_DISH_IMG,
     START_RANDOM_NUMBER,
-    END_RANDOM_NUMBER
+    END_RANDOM_NUMBER,
+    RES_ORDER_VIEW_PAGINATE,
 )
 
 
@@ -160,7 +165,7 @@ def login_view(request):
         if user is not None:
             login(request, user)
             messages.success(request, _("Logged in"))
-            next_url = request.GET.get('next') or request.POST.get('next')
+            next_url = request.GET.get("next") or request.POST.get("next")
             if next_url:
                 return redirect(next_url)
             return redirect("app:index")
@@ -207,22 +212,41 @@ class DishDetail(View):
         image_url = menu_item.image_url
 
         item = MenuItem.objects.get(pk=item_id)
-        user = request.user
-        user_profile = Profile.objects.get(user=user)
-        review_exists = Review.objects.filter(user=user_profile, item=item).exists()
-        review_form = ReviewForm()
+        review_exists = False
+        review_form = None
+        user_profile = None
+
+        if request.user.is_authenticated:
+            user = request.user
+            user_profile = Profile.objects.get(user=user)
+            review_exists = Review.objects.filter(
+                user=user_profile, item=menu_item
+            ).exists()
+            review_form = ReviewForm()
+
         reviews = Review.objects.filter(item=menu_item)
         rating_percentages = {i: 0 for i in range(1, 6)}
-        ratings = Review.objects.values('rating').annotate(count=Count('rating')).order_by('rating')
+        ratings = (
+            Review.objects.filter(item=menu_item)
+            .values("rating")
+            .annotate(count=Count("rating"))
+            .order_by("rating")
+        )
         for rating in ratings:
-            percentage = (rating['count'] / len(reviews)) * 100
-            rating_percentages[rating['rating']] = percentage
-        avg_rating = Review.objects.filter(item=menu_item).aggregate(rating=Avg("rating"))
+            if len(reviews) == 0:
+                percentage = 0
+            else:
+                percentage = (rating["count"] / len(reviews)) * 100
+            rating_percentages[rating["rating"]] = percentage
+        avg_rating = Review.objects.filter(item=menu_item).aggregate(
+            rating=Avg("rating")
+        )
+
         review = {
             "total_review": len(reviews),
             "reviews": reviews,
             "avg_rating": avg_rating,
-            "rating_percentages": rating_percentages
+            "rating_percentages": rating_percentages,
         }
 
         context = {
@@ -232,10 +256,10 @@ class DishDetail(View):
             "price": price,
             "image_url": image_url,
             "review": review,
-            'review_form': review_form,
-            'review_exists': review_exists
+            "review_form": review_form,
+            "review_exists": review_exists,
         }
-        
+
         return render(request, "dishes/detail.html", context)
 
 
@@ -575,42 +599,53 @@ def cancel_order(request):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
 
+
 def add_review(request, item_id):
     item = MenuItem.objects.get(pk=item_id)
     user = request.user
     user_profile = Profile.objects.get(user=user)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         if Review.objects.filter(user=user_profile, item=item).exists():
-            return JsonResponse({
-                'bool': False,
-                'error': 'You have already submitted a review for this item.'
-            }, status=400)
-        
+            return JsonResponse(
+                {
+                    "bool": False,
+                    "error": "You have already submitted a review for this item.",
+                },
+                status=400,
+            )
+
         review = Review.objects.create(
             user=user_profile,
             item=item,
-            rating=request.POST.get('rating'),
-            comment=request.POST.get('comment'),
+            rating=request.POST.get("rating"),
+            comment=request.POST.get("comment"),
         )
 
-        avg_review = Review.objects.filter(item=item).aggregate(rating=Avg("rating"))
-        return JsonResponse({
-            'bool': True,
-            'context': {
-                'user': user.username,
-                'comment': request.POST.get('comment'),
-                'rating': request.POST.get('rating'),
-            },
-            'avg_review': avg_review['rating'],
-        })
-    
-    return JsonResponse({'bool': False, 'error': 'Invalid request method.'}, status=400)
+        avg_review = Review.objects.filter(item=item).aggregate(
+            rating=Avg("rating")
+        )
+        return JsonResponse(
+            {
+                "bool": True,
+                "context": {
+                    "user": user.username,
+                    "comment": request.POST.get("comment"),
+                    "rating": request.POST.get("rating"),
+                },
+                "avg_review": avg_review["rating"],
+            }
+        )
+
+    return JsonResponse(
+        {"bool": False, "error": "Invalid request method."}, status=400
+    )
+
 
 @login_required
 def order_history(request):
     user_profile = Profile.objects.get(user=request.user)
-    orders = Order.objects.filter(user=user_profile).order_by('-order_id')
+    orders = Order.objects.filter(user=user_profile).order_by("-order_id")
     order_items = OrderItem.objects.filter(order__in=orders)
     context = {
         'orders': orders,
@@ -700,3 +735,39 @@ def password_reset(request):
         return render(request, 'registration/password_reset.html', {'error': error_message})
 
     return redirect('app:forgot_password')
+
+
+class ResOrderView(LoginRequiredMixin, generic.ListView):
+    model = Order
+    context_object_name = "orders"
+    paginate_by = RES_ORDER_VIEW_PAGINATE
+
+    def get_queryset(self):
+        if self.request.user.role != "Restaurant":
+            return JsonResponse(
+                {"error": _("You are not authorized to view this page.")},
+                status=403,
+            )
+
+        try:
+            restaurant = Restaurant.objects.get(
+                profile__user=self.request.user
+            )
+        except Restaurant.DoesNotExist:
+            return JsonResponse(
+                {"error": _("You do not have an associated restaurant.")},
+                status=403,
+            )
+
+        return Order.objects.filter(restaurant=restaurant).order_by('order_id')
+
+    def get_context_data(self, **kwargs):
+        queryset = self.get_queryset()
+        if queryset is None:
+            return HttpResponseForbidden("You are not authorized to view this page.")
+        
+        order_count = queryset.count()
+
+        context = super().get_context_data(**kwargs)
+        context["order_count"] = order_count
+        return context

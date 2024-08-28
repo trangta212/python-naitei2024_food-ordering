@@ -44,3 +44,4 @@ HIGHLIGHT_DISH_IMG = [
     "images/gallery/chowmein.png",
     "images/gallery/steak.png",
 ]
+RES_ORDER_VIEW_PAGINATE = 5
