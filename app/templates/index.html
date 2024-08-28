@@ -11,50 +11,6 @@
         <h1 class="display-1 fs-md-5 fs-lg-6 fs-xl-8 text-light">Are you starving?</h1>
         <h1 class="text-800 mb-5 fs-4">Within a few clicks, find meals that<br class="d-none d-xxl-block" />are
           accessible near you</h1>
-        <div class="card w-xxl-75">
-          <div class="card-body">
-            <nav>
-              <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                <button class="nav-link active mb-3" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home"
-                  type="button" role="tab" aria-controls="nav-home" aria-selected="true"><i
-                    class="fas fa-motorcycle me-2"></i>Delivery</button>
-                <button class="nav-link mb-3" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile"
-                  type="button" role="tab" aria-controls="nav-profile" aria-selected="false"><i
-                    class="fas fa-shopping-bag me-2"></i>Pickup</button>
-              </div>
-            </nav>
-            <div class="tab-content mt-3" id="nav-tabContent">
-              <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
-                <form class="row gx-2 gy-2 align-items-center">
-                  <div class="col">
-                    <div class="input-group-icon"><i class="fas fa-map-marker-alt text-danger input-box-icon"></i>
-                      <label class="visually-hidden" for="inputDelivery">Address</label>
-                      <input class="form-control input-box form-foodwagon-control" id="inputDelivery" type="text"
-                        placeholder="Enter Your Address" />
-                    </div>
-                  </div>
-                  <div class="d-grid gap-3 col-sm-auto">
-                    <button class="btn btn-danger" type="submit">Find Food</button>
-                  </div>
-                </form>
-              </div>
-              <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-                <form class="row gx-4 gy-2 align-items-center">
-                  <div class="col">
-                    <div class="input-group-icon"><i class="fas fa-map-marker-alt text-danger input-box-icon"></i>
-                      <label class="visually-hidden" for="inputPickup">Address</label>
-                      <input class="form-control input-box form-foodwagon-control" id="inputPickup" type="text"
-                        placeholder="Enter Your Address" />
-                    </div>
-                  </div>
-                  <div class="d-grid gap-3 col-sm-auto">
-                    <button class="btn btn-danger" type="submit">Find Food</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -71,16 +27,6 @@
         <div class="card card-span h-100">
           <div class="position-relative"> <img class="img-fluid rounded-3 w-100"
               src="{% static 'images/gallery/discount-item-1.png' %}" alt="..." />
-            <div class="card-actions">
-              <div class="badge badge-foodwagon bg-primary p-4">
-                <div class="d-flex flex-between-center">
-                  <div class="text-white fs-7">15</div>
-                  <div class="d-block text-white fs-2">% <br />
-                    <div class="fw-normal fs-1 mt-2">Off</div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
           <div class="card-body px-0">
             <h5 class="fw-bold text-1000 text-truncate">Flat Hill Slingback</h5><span
@@ -92,16 +38,6 @@
         <div class="card card-span h-100">
           <div class="position-relative"> <img class="img-fluid rounded-3 w-100"
               src="{% static 'images/gallery/discount-item-2.png' %}" alt="..." />
-            <div class="card-actions">
-              <div class="badge badge-foodwagon bg-primary p-4">
-                <div class="d-flex flex-between-center">
-                  <div class="text-white fs-7">10</div>
-                  <div class="d-block text-white fs-2">% <br />
-                    <div class="fw-normal fs-1 mt-2">Off</div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
           <div class="card-body px-0">
             <h5 class="fw-bold text-1000 text-truncate">Ocean Blue Ring</h5><span
@@ -113,16 +49,6 @@
         <div class="card card-span h-100">
           <div class="position-relative"> <img class="img-fluid rounded-3 w-100"
               src="{% static 'images/gallery/discount-item-3.png' %}" alt="..." />
-            <div class="card-actions">
-              <div class="badge badge-foodwagon bg-primary p-4">
-                <div class="d-flex flex-between-center">
-                  <div class="text-white fs-7">25</div>
-                  <div class="d-block text-white fs-2">% <br />
-                    <div class="fw-normal fs-1 mt-2">Off</div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
           <div class="card-body px-0">
             <h5 class="fw-bold text-1000 text-truncate">Brown Leathered Wallet</h5><span
@@ -134,16 +60,6 @@
         <div class="card card-span h-100">
           <div class="position-relative"> <img class="img-fluid rounded-3 w-100"
               src="{% static 'images/gallery/discount-item-4.png' %}" alt="..." />
-            <div class="card-actions">
-              <div class="badge badge-foodwagon bg-primary p-4">
-                <div class="d-flex flex-between-center">
-                  <div class="text-white fs-7">20</div>
-                  <div class="d-block text-white fs-2">% <br />
-                    <div class="fw-normal fs-1 mt-2">Off</div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
           <div class="card-body px-0">
             <h5 class="fw-bold text-1000 text-truncate">Silverside Wristwatch</h5><span
@@ -229,7 +145,7 @@
                   {% for item in popular_items|slice:":5" %}
                   <div class="col-sm-6 col-md-4 col-xl mb-5 h-100">
                       <a class="card card-span h-100 rounded-3" href="{% url 'app:dish_detail' item_id=item.item_id %}">
-                          <img class="img-fluid rounded-3 h-100" src="{% static item.image_url %}"/>
+                          <img class="img-fluid rounded-3 hn-1" src="{% static item.image_url %}"/>
                           <div class="card-body ps-0">
                               <h5 class="fw-bold text-1000 text-truncate mb-1">{{ item.name }}</h5>
                               <div><span class="text-warning me-2"><i class="fas fa-map-marker-alt"></i></span><span class="text-primary">{{ item.restaurant.profile.name }}</span></div>
@@ -246,7 +162,7 @@
                 {% for item in popular_items|slice:"5:10" %}
                   <div class="col-sm-6 col-md-4 col-xl mb-5 h-100">
                     <a class="card card-span h-100 rounded-3" href="{% url 'app:dish_detail' item_id=item.item_id %}">
-                      <img class="img-fluid rounded-3 h-100" src="{% static item.image_url %}"/>
+                      <img class="img-fluid rounded-3 hn-1" src="{% static item.image_url %}"/>
                       <div class="card-body ps-0">
                           <h5 class="fw-bold text-1000 text-truncate mb-1">{{ item.name }}</h5>
                           <div><span class="text-warning me-2"><i class="fas fa-map-marker-alt"></i></span><span class="text-primary">{{ item.restaurant.profile.name }}</span></div>
@@ -263,7 +179,7 @@
                 {% for item in popular_items|slice:"10:15" %}
                   <div class="col-sm-6 col-md-4 col-xl mb-5 h-100">
                     <a class="card card-span h-100 rounded-3" href="{% url 'app:dish_detail' item_id=item.item_id %}">
-                      <img class="img-fluid rounded-3 h-100" src="{% static item.image_url %}"/>
+                      <img class="img-fluid rounded-3 hn-1" src="{% static item.image_url %}"/>
                       <div class="card-body ps-0">
                           <h5 class="fw-bold text-1000 text-truncate mb-1">{{ item.name }}</h5>
                           <div><span class="text-warning me-2"><i class="fas fa-map-marker-alt"></i></span><span class="text-primary">{{ item.restaurant.profile.name }}</span></div>
@@ -280,7 +196,7 @@
                 {% for item in popular_items|slice:"15:20" %}
                   <div class="col-sm-6 col-md-4 col-xl mb-5 h-100">
                     <a class="card card-span h-100 rounded-3" href="{% url 'app:dish_detail' item_id=item.item_id %}">
-                      <img class="img-fluid rounded-3 h-100" src="{% static item.image_url %}"/>
+                      <img class="img-fluid rounded-3 hn-1" src="{% static item.image_url %}"/>
                       <div class="card-body ps-0">
                           <h5 class="fw-bold text-1000 text-truncate mb-1">{{ item.name }}</h5>
                           <div><span class="text-warning me-2"><i class="fas fa-map-marker-alt"></i></span><span class="text-primary">{{ item.restaurant.profile.name }}</span></div>
@@ -320,10 +236,6 @@
       <div class="col-sm-6 col-md-4 col-lg-3 h-100 mb-5">
         <div class="card card-span h-100 text-white rounded-3"><img class="img-fluid rounded-3 h-100"
             src="{% static 'images/gallery/food-world.png' %}" alt="..." />
-          <div class="card-img-overlay ps-0"><span class="badge bg-danger p-2 ms-3"><i
-                class="fas fa-tag me-2 fs-0"></i><span class="fs-0">20% off</span></span><span
-              class="badge bg-primary ms-2 me-1 p-2"><i class="fas fa-clock me-1 fs-0"></i><span
-                class="fs-0">Fast</span></span></div>
           <div class="card-body ps-0">
             <div class="d-flex align-items-center mb-3"><img class="img-fluid"
                 src="{% static 'images/gallery/food-world-logo.png' %}" alt="" />
@@ -339,10 +251,6 @@
       <div class="col-sm-6 col-md-4 col-lg-3 h-100 mb-5">
         <div class="card card-span h-100 text-white rounded-3"><img class="img-fluid rounded-3 h-100"
             src="{% static 'images/gallery/pizza-hub.png' %}" alt="..." />
-          <div class="card-img-overlay ps-0"><span class="badge bg-danger p-2 ms-3"><i
-                class="fas fa-tag me-2 fs-0"></i><span class="fs-0">10% off</span></span><span
-              class="badge bg-primary ms-2 me-1 p-2"><i class="fas fa-clock me-1 fs-0"></i><span
-                class="fs-0">Fast</span></span></div>
           <div class="card-body ps-0">
             <div class="d-flex align-items-center mb-3"><img class="img-fluid"
                 src="{% static 'images/gallery/pizzahub-logo.png' %}" alt="" />
@@ -358,10 +266,6 @@
       <div class="col-sm-6 col-md-4 col-lg-3 h-100 mb-5">
         <div class="card card-span h-100 text-white rounded-3"><img class="img-fluid rounded-3 h-100"
             src="{% static 'images/gallery/donuts-hut.png' %}" alt="..." />
-          <div class="card-img-overlay ps-0"><span class="badge bg-danger p-2 ms-3"><i
-                class="fas fa-tag me-2 fs-0"></i><span class="fs-0">15% off</span></span><span
-              class="badge bg-primary ms-2 me-1 p-2"><i class="fas fa-clock me-1 fs-0"></i><span
-                class="fs-0">Fast</span></span></div>
           <div class="card-body ps-0">
             <div class="d-flex align-items-center mb-3"><img class="img-fluid"
                 src="{% static 'images/gallery/donuts-hut-logo.png' %}" alt="" />
@@ -376,10 +280,6 @@
       <div class="col-sm-6 col-md-4 col-lg-3 h-100 mb-5">
         <div class="card card-span h-100 text-white rounded-3"><img class="img-fluid rounded-3 h-100"
             src="{% static 'images/gallery/donuthut.png' %}" alt="..." />
-          <div class="card-img-overlay ps-0"><span class="badge bg-danger p-2 ms-3"><i
-                class="fas fa-tag me-2 fs-0"></i><span class="fs-0">15% off</span></span><span
-              class="badge bg-primary ms-2 me-1 p-2"><i class="fas fa-clock me-1 fs-0"></i><span
-                class="fs-0">Fast</span></span></div>
           <div class="card-body ps-0">
             <div class="d-flex align-items-center mb-3"><img class="img-fluid"
                 src="{% static 'images/gallery/donut-hut-logo.png' %}" alt="" />
@@ -394,10 +294,6 @@
       <div class="col-sm-6 col-md-4 col-lg-3 h-100 mb-5">
         <div class="card card-span h-100 text-white rounded-3"><img class="img-fluid rounded-3 h-100"
             src="{% static 'images/gallery/ruby-tuesday.png' %}" alt="..." />
-          <div class="card-img-overlay ps-0"><span class="badge bg-danger p-2 ms-3"><i
-                class="fas fa-tag me-2 fs-0"></i><span class="fs-0">10% off</span></span><span
-              class="badge bg-primary ms-2 me-1 p-2"><i class="fas fa-clock me-1 fs-0"></i><span
-                class="fs-0">Fast</span></span></div>
           <div class="card-body ps-0">
             <div class="d-flex align-items-center mb-3"><img class="img-fluid"
                 src="{% static 'images/gallery/ruby-tuesday-logo.png' %}" alt="" />
@@ -412,10 +308,6 @@
       <div class="col-sm-6 col-md-4 col-lg-3 h-100 mb-5">
         <div class="card card-span h-100 text-white rounded-3"><img class="img-fluid rounded-3 h-100"
             src="{% static 'images/gallery/kuakata.png' %}" alt="..." />
-          <div class="card-img-overlay ps-0"><span class="badge bg-danger p-2 ms-3"><i
-                class="fas fa-tag me-2 fs-0"></i><span class="fs-0">10% off</span></span><span
-              class="badge bg-primary ms-2 me-1 p-2"><i class="fas fa-clock me-1 fs-0"></i><span
-                class="fs-0">Fast</span></span></div>
           <div class="card-body ps-0">
             <div class="d-flex align-items-center mb-3"><img class="img-fluid"
                 src="{% static 'images/gallery/kuakata-logo.png' %}" alt="" />
@@ -430,10 +322,6 @@
       <div class="col-sm-6 col-md-4 col-lg-3 h-100 mb-5">
         <div class="card card-span h-100 text-white rounded-3"><img class="img-fluid rounded-3 h-100"
             src="{% static 'images/gallery/red-square.png' %}" alt="..." />
-          <div class="card-img-overlay ps-0"><span class="badge bg-danger p-2 ms-3"><i
-                class="fas fa-tag me-2 fs-0"></i><span class="fs-0">10% off</span></span><span
-              class="badge bg-primary ms-2 me-1 p-2"><i class="fas fa-clock me-1 fs-0"></i><span
-                class="fs-0">Fast</span></span></div>
           <div class="card-body ps-0">
             <div class="d-flex align-items-center mb-3"><img class="img-fluid"
                 src="{% static 'images/gallery/red-square-logo.png' %}" alt="" />
@@ -448,10 +336,6 @@
       <div class="col-sm-6 col-md-4 col-lg-3 h-100 mb-5">
         <div class="card card-span h-100 text-white rounded-3"><img class="img-fluid rounded-3 h-100"
             src="{% static 'images/gallery/taco-bell.png' %}" alt="..." />
-          <div class="card-img-overlay ps-0"><span class="badge bg-danger p-2 ms-3"><i
-                class="fas fa-tag me-2 fs-0"></i><span class="fs-0">10% off</span></span><span
-              class="badge bg-primary ms-2 me-1 p-2"><i class="fas fa-clock me-1 fs-0"></i><span
-                class="fs-0">Fast</span></span></div>
           <div class="card-body ps-0">
             <div class="d-flex align-items-center mb-3"><img class="img-fluid"
                 src="{% static 'images/gallery/taco-bell-logo.png' %}" alt="" />
