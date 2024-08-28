@@ -15,7 +15,11 @@ from app.models import (
 )
 from django.utils.translation import gettext_lazy as _
 import json
-
+from django.core import mail
+from django.contrib.auth import get_user_model
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from app.tokens import account_activation_token  
 
 class AddReviewTestCase(TestCase):
     def setUp(self):
@@ -351,7 +355,7 @@ class ChangeStatusViewTest(TestCase):
             username="restaurant@example.com", password="restaurantpass"
         )
         response = self.client.post(
-            reverse("app:change_status"),
+            reverse('app:change_status'),
             json.dumps(
                 {"order_id": self.order.order_id, "status": "Delivered"}
             ),
@@ -368,3 +372,93 @@ class ChangeStatusViewTest(TestCase):
                 "order_status": "Delivered",
             },
         )
+        self.assertContains(response, 'Orders: 0')
+
+User = get_user_model()
+
+class PasswordResetTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', email='testuser@example.com', password='securepassword', is_active=True)
+
+    def test_enter_otp_incorrect(self):
+        self.client.login(username='testuser@example.com', password='securepassword')
+        session = self.client.session
+        session['email'] = self.user.email
+        session.save()
+        response = self.client.post(reverse('app:enter_otp'), {
+            'otp': 'incorrect_otp'
+        })
+        print(response.content.decode()) 
+        self.assertEqual(response.status_code, 200) 
+        self.assertContains(response, 'Invalid OTP')
+
+    def test_password_reset_current_password(self):
+        self.client.login(username='testuser@example.com', password='securepassword')
+        session = self.client.session
+        session['email'] = self.user.email
+        session.save()
+        response = self.client.post(reverse('app:password_reset'), {
+            'new_password': 'securepassword',
+            'confirm_new_password': 'securepassword'
+        })
+        self.assertEqual(response.status_code, 200) 
+        self.assertContains(response, 'This password is already used')
+
+    def test_send_otp_email_not_exists(self):
+        response = self.client.post(reverse('app:send_otp'), {
+            'email': 'nonexistent@example.com'
+        })
+        self.assertEqual(response.status_code, 200)  
+        self.assertContains(response, 'Email does not exist')
+
+    def test_password_change_successful(self):
+        session = self.client.session
+        session['email'] = self.user.email
+        session.save()
+        response = self.client.post(reverse('app:password_reset'), {
+            'new_password': 'newsecurepassword',
+            'confirm_new_password': 'newsecurepassword'
+        })
+        
+        self.assertEqual(response.status_code, 302)      
+        follow_response = self.client.get(response.url, follow=True)
+        print(follow_response.content.decode())
+
+        self.client.logout()
+        login_successful = self.client.login(username='testuser@example.com', password='newsecurepassword')
+        self.assertTrue(login_successful)
+        
+class ActivationTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', email='testuser@example.com', password='securepassword', is_active=False)
+        self.uid = urlsafe_base64_encode(force_bytes(self.user.pk))
+        self.token = account_activation_token.make_token(self.user)
+
+    def test_activate_success(self):
+        response = self.client.get(reverse('app:activate', kwargs={'uidb64': self.uid, 'token': self.token}))
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.is_active)
+        self.assertRedirects(response, reverse('app:index'))
+        messages = list(response.wsgi_request._messages)
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0].message, "Account activated successfully")
+        self.assertEqual(messages[0].level_tag, "success")
+
+    def test_activate_invalid_token(self):
+        response = self.client.get(reverse('app:activate', kwargs={'uidb64': self.uid, 'token': 'invalid-token'}))
+        self.user.refresh_from_db()
+        self.assertFalse(self.user.is_active)
+        self.assertRedirects(response, reverse('app:index'))
+        messages = list(response.wsgi_request._messages)
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0].message, "Activation link is invalid!")
+        self.assertEqual(messages[0].level_tag, "error")
+
+    def test_activate_invalid_uid(self):
+        invalid_uid = urlsafe_base64_encode(force_bytes(999))
+        response = self.client.get(reverse('app:activate', kwargs={'uidb64': invalid_uid, 'token': self.token}))
+        self.assertRedirects(response, reverse('app:index'))
+        messages = list(response.wsgi_request._messages)
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0].message, "Activation link is invalid!")
+        self.assertEqual(messages[0].level_tag, "error")

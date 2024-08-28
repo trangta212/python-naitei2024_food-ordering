@@ -726,11 +726,11 @@ def send_otp(request):
         messages.success(request, _("OTP has been sent to your email"))
         return redirect("app:enter_otp")
     else:
-        error_message = _("Email does not exist")
-        return render(
-            request,
-            "registration/forgot_password.html",
-            {"error": error_message},
+        error_message = _('Email does not exist')
+        messages.error(request, error_message)
+        return render(request,
+                      'registration/forgot_password.html', 
+                      {'error': error_message}
         )
 
 
@@ -760,9 +760,6 @@ def enter_otp(request):
         return render(request, "registration/enter_otp.html")
 
     return redirect("app:forgot_password")
-
-
-User = get_user_model()
 
 
 def password_reset(request):
