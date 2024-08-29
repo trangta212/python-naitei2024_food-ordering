@@ -21,7 +21,10 @@
 }
 
 .orderitem-progress-bar {
-    width: 20%;
     border-radius: 16px;
     background-color: #ffb30e;
+}
+
+.cursor-pointer:hover {
+    cursor: pointer;
 }

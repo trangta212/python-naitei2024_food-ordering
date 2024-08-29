@@ -43,6 +43,8 @@ urlpatterns += [
     path('cancel-order/', views.cancel_order, name='cancel_order'),
     path('orderhistory/', views.order_history, name='order_history'),
     path('res/order', views.ResOrderView.as_view(), name='res_order'),
+    path('res/order-detail/<int:order_id>/', views.ResOrderDetailView.as_view(), name='res_order_detail'),
+    path('change-status/', views.changeStatus, name='change_status'),
 ]
 
 urlpatterns += [

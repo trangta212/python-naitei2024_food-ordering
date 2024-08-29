@@ -24,7 +24,7 @@
                             aria-label="Search"
                             value="{{ request.GET.q }}"
                         />
-                        <button class="btn btn-outline-secondary border-0" type="submit">
+                        <button id="header-search-btn" class="btn btn-outline-secondary border-0" type="submit">
                             <i class="fas fa-search text-primary"></i>
                         </button>
                     </div>
@@ -32,17 +32,11 @@
             </div>
             <div class="d-flex align-items-center">
                 {% if user.is_authenticated %}
-                    {% if request.user.role == "Restaurant" %}
-                    <a href="{% url 'app:res_order' %}" class="btn btn-white shadow-warning text-warning me-2">
-                        {% trans "Orders" %}
-                    </a>
-                    {% else %}
                     <a href="{% url 'app:order_history' %}" class="btn btn-white shadow-warning text-warning me-2">
-                        {% trans "Orders" %}
+                        <i class="fas fa-paper-plane me-2"></i>{% trans "Orders" %}
                     </a>
-                    {% endif %}
                     <a href="{% url 'app:menu' %}" class="btn btn-white shadow-warning text-warning me-2">
-                        {% trans "Menu" %}
+                        <i class="fas fa-utensils me-2"></i>{% trans "Menu" %}
                     </a>
                 {% endif %}
                 {% if user.is_authenticated %}
