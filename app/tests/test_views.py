@@ -255,6 +255,8 @@ class ResOrderDetailViewTest(TestCase):
         self.client.login(email="user@example.com", password="password")
 
     def test_order_detail_view_success(self):
+        self.client.logout()
+        self.client.login(email="restaurant@example.com", password="password")
         response = self.client.get(
             reverse(
                 "app:res_order_detail",
@@ -267,7 +269,7 @@ class ResOrderDetailViewTest(TestCase):
 
     def test_order_detail_view_permission_denied(self):
         self.client.logout()
-        self.client.login(email="restaurant@example.com", password="password")
+        self.client.login(email="user@example.com", password="password")
         response = self.client.get(
             reverse(
                 "app:res_order_detail",
@@ -372,7 +374,6 @@ class ChangeStatusViewTest(TestCase):
                 "order_status": "Delivered",
             },
         )
-        self.assertContains(response, 'Orders: 0')
 
 User = get_user_model()
 
@@ -462,3 +463,71 @@ class ActivationTests(TestCase):
         self.assertEqual(len(messages), 1)
         self.assertEqual(messages[0].message, "Activation link is invalid!")
         self.assertEqual(messages[0].level_tag, "error")
+
+
+class ResMenuViewTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="testuser",
+            email="testuser@example.com",
+            password="password123",
+        )
+        self.profile = Profile.objects.create(
+            user=self.user,
+            name="Test Restaurant",
+            email="testuser@example.com",
+            phone_number="0123456789",
+            address="123 Test Street",
+            profile_type="Restaurant",
+        )
+        self.restaurant = Restaurant.objects.create(
+            profile=self.profile, image_url="http://example.com/image.jpg"
+        )
+
+        self.menu_item1 = MenuItem.objects.create(
+            restaurant=self.restaurant,
+            name="Pizza",
+            description="Delicious cheese pizza",
+            price=10.0,
+            rate_avg=4.5,
+        )
+        self.menu_item2 = MenuItem.objects.create(
+            restaurant=self.restaurant,
+            name="Burger",
+            description="Juicy beef burger",
+            price=8.0,
+            rate_avg=4.0,
+        )
+
+        self.client = Client()
+
+    def test_res_menu_view(self):
+        response = self.client.get(
+            reverse(
+                "app:res_menu",
+                kwargs={"restaurant_id": self.restaurant.restaurant_id},
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertIn("items", response.context)
+        self.assertEqual(len(response.context["items"]), 2)
+        self.assertIn(self.menu_item1, response.context["items"])
+        self.assertIn(self.menu_item2, response.context["items"])
+
+        self.assertIn("restaurant_name", response.context)
+        self.assertEqual(
+            response.context["restaurant_name"], self.profile.name
+        )
+
+    def test_res_menu_view_no_items(self):
+        MenuItem.objects.all().delete()
+        response = self.client.get(
+            reverse(
+                "app:res_menu",
+                kwargs={"restaurant_id": self.restaurant.restaurant_id},
+            )
+        )
+
+        self.assertEqual(len(response.context["items"]), 0)

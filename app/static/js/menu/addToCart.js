@@ -17,7 +17,15 @@ function addToCart(itemId) {
         if (response.redirected) {
             const redirectUrl = new URL(response.url);
             if (currentUrl.endsWith('menu')) {
-                redirectUrl.searchParams.set('next', '/menu');
+                const resMenuPattern = /\/res\/(\d+)\/menu$/;
+                const match = currentUrl.match(resMenuPattern);
+            
+                if (match) {
+                    const restaurantId = match[1];
+                    redirectUrl.searchParams.set('next', `/res/${restaurantId}/menu`);
+                } else {
+                    redirectUrl.searchParams.set('next', '/menu');
+                }
             } else {
                 redirectUrl.searchParams.set('next', '/');
             }

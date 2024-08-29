@@ -8,8 +8,8 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     role = models.CharField(max_length=constants.ROLE_LENGTH)
     otp = models.CharField(max_length=6, blank=True, null=True)
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username"]
 
     def __str__(self):
         return self.username
@@ -32,6 +32,9 @@ class Restaurant(models.Model):
     restaurant_id = models.AutoField(primary_key=True)
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     image_url = models.URLField(
+        max_length=constants.URL_LENGTH, null=True, blank=True
+    )
+    highlight_image_url = models.URLField(
         max_length=constants.URL_LENGTH, null=True, blank=True
     )
     opening_hours = models.JSONField(

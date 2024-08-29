@@ -1,5 +1,6 @@
 import json
 import uuid
+import math
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.conf import settings
@@ -73,6 +74,9 @@ def index(request):
         :TOP_RATED_ITEMS_LENGTH
     ]
 
+    for item in top_rated_items:
+        item.rate_avg_star_list = range(math.ceil(item.rate_avg))
+
     highlight_categories = Category.objects.filter(
         category_name__in=HIGHLIGHT_DISH
     )
@@ -88,9 +92,15 @@ def index(request):
         }
         for name in HIGHLIGHT_DISH
     }
+
+    top_restaurants = Restaurant.objects.annotate(
+        avg_rate=Avg("menuitem__rate_avg")
+    ).order_by("-avg_rate")[:8]
+
     context = {
         "popular_items": top_rated_items,
         "categories_info": categories_info,
+        "top_restaurants": top_restaurants,
     }
     return render(request, "index.html", context=context)
 
@@ -275,6 +285,7 @@ class DishDetail(View):
             "review": review,
             "review_form": review_form,
             "review_exists": review_exists,
+            "item_id": item_id,
         }
 
         return render(request, "dishes/detail.html", context)
@@ -582,7 +593,7 @@ def cancel_order(request):
             order = Order.objects.get(order_id=order_id)
             items = OrderItem.objects.filter(order=order)
 
-            if order.user.user != user:
+            if order.user.user != user and order.restaurant.profile.user != user:
                 return JsonResponse(
                     {
                         "error": _(
@@ -849,7 +860,7 @@ class ResOrderDetailView(LoginRequiredMixin, generic.ListView):
         order_id = kwargs.get("order_id")
         order = Order.objects.get(order_id=order_id)
 
-        if order.user.user != request.user:
+        if order.restaurant.profile.user != request.user:
             return JsonResponse(
                 {
                     "error": _(
@@ -865,7 +876,7 @@ class ResOrderDetailView(LoginRequiredMixin, generic.ListView):
         order_id = self.kwargs["order_id"]
         user = self.request.user
 
-        if Order.objects.get(order_id=order_id).user.user != user:
+        if Order.objects.get(order_id=order_id).restaurant.profile.user != user:
             return OrderItem.objects.none()
 
         if user:
@@ -929,3 +940,10 @@ def changeStatus(request):
         },
         status=200,
     )
+
+
+def res_menu_view(request, restaurant_id):
+    restaurant = Restaurant.objects.get(restaurant_id=restaurant_id)
+    items = MenuItem.objects.filter(restaurant__restaurant_id=restaurant_id)
+    context = {"items": items, "restaurant_name": restaurant.profile.name}
+    return render(request, "restaurant/res_menu.html", context=context)
