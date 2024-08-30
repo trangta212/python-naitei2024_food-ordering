@@ -28,8 +28,8 @@
                                 {% trans "Dashboard" %}
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link">
+                        <li class="nav-item" aria-current="page">
+                            <a class="nav-link active" href="{% url 'app:manage_item' %}">
                                 <span data-feather="box"></span>
                                 {% trans "Manage Product" %}
                             </a>
@@ -67,9 +67,6 @@
                         </button>
                         <div class="collapse navbar-collapse" id="navbarNav">
                             <ul class="navbar-nav ms-auto">
-                                <li class="nav-item">
-                                    <a class="nav-link">{% trans "Profile" %}</a>
-                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="{% url 'app:logout' %}">{% trans "Logout" %}</a>
                                 </li>

@@ -1,0 +1,114 @@
+{% load i18n %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans "Update Menu Item" %}</title>
+    <link href="{% static 'css/lib/dashboard.min.css' %}" rel="stylesheet" />
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+                <div class="position-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{% url 'app:dashboard' %}">
+                                <span data-feather="home"></span>
+                                {% trans "Dashboard" %}
+                            </a>
+                        </li>
+                        <li class="nav-item" aria-current="page">
+                            <a class="nav-link active" href="{% url 'app:manage_item' %}">
+                                <span data-feather="box"></span>
+                                {% trans "Manage Products" %}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <h1 class="mt-4">{% trans "Update Menu Item" %}</h1>
+                <div class="card mt-4">
+                    <div class="card-body">                        
+                        <!-- Update Menu Item Form -->
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            <!-- Name -->
+                            <div class="mb-3">
+                                <label for="id_name" class="form-label required-field">{% trans "Item Name" %}</label>
+                                <input type="text" class="form-control" id="id_name" name="name" value="{{ form.name.value }}" placeholder="Enter item name" required>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="mb-3">
+                                <label for="id_description" class="form-label required-field">{% trans "Description" %}</label>
+                                <textarea class="form-control" id="id_description" name="description" rows="4" placeholder="Enter item description" required>{{ form.description.value }}</textarea>
+                            </div>
+
+                            <!-- Price -->
+                            <div class="mb-3">
+                                <label for="id_price" class="form-label required-field">{% trans "Price" %}</label>
+                                <input type="number" step="0.01" class="form-control" id="id_price" name="price" value="{{ form.price.value }}" placeholder="Enter price in USD" required>
+                                {% if form.price.errors %}
+                                    <div class="alert alert-danger">
+                                        {% for error in form.price.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Quantity -->
+                            <div class="mb-3">
+                                <label for="id_quantity" class="form-label required-field">{% trans "Quantity" %}</label>
+                                <input type="number" class="form-control" id="id_quantity" name="quantity" value="{{ form.quantity.value }}" placeholder="Enter available quantity" required>
+                                {% if form.quantity.errors %}
+                                    <div class="alert alert-danger">
+                                        {% for error in form.quantity.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Categories -->
+                            <div class="mb-3">
+                                <label for="id_categories" class="form-label">{% trans "Categories" %}</label>
+                                {{ form.categories }}
+                            </div>
+
+                            <!-- Current Image -->
+                            <div class="mb-3">
+                                <label for="current_image" class="form-label">{% trans "Current Image" %}</label>
+                                {% if menu_item.image_url %}
+                                    <img src="{{ menu_item.image_url }}" alt="{{ menu_item.name }}" class="img-thumbnail" style="max-width: 200px;">
+                                {% else %}
+                                    <p>No image uploaded</p>
+                                {% endif %}
+                            </div>
+
+                            <!-- Image -->
+                            <div class="mb-3">
+                                <label for="image" class="form-label">{% trans "New Item Image (optional)" %}</label>
+                                <input type="file" name="image" class="form-control" id="image">
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn btn-success">{% trans "Update Item" %}</button>
+                            <a href="{% url 'app:manage_item' %}" class="btn btn-secondary">Cancel</a>
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

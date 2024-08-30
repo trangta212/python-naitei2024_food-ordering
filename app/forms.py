@@ -1,9 +1,10 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.utils.translation import gettext_lazy as _
+from django import forms
 
 from app.constants import RATING_CHOICES
-from app.models import Review, User
+from app.models import Category, MenuItem, Review, User
 
 class SignUpForm(UserCreationForm):
     class Meta:
@@ -44,3 +45,26 @@ class ReviewForm(forms.ModelForm):
     class Meta:
         model = Review
         fields = ['comment', 'rating']
+
+class MenuItemForm(forms.ModelForm):
+    categories = forms.ModelMultipleChoiceField(
+        queryset=Category.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
+    class Meta:
+        model = MenuItem
+        fields = ['name', 'description', 'price', 'quantity', 'categories', 'image_url']
+
+    def clean_price(self):
+        price = self.cleaned_data.get('price')
+        if price is not None and price < 0:
+            raise forms.ValidationError("Price must be greater than or equal to 0.")
+        return price
+    
+    def clean_quantity(self):
+        quantity = self.cleaned_data.get('quantity')
+        if quantity is not None and quantity < 0:
+            raise forms.ValidationError("Quantity must be greater than or equal to 0.")
+        return quantity

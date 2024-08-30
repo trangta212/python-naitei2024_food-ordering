@@ -48,4 +48,14 @@ urlpatterns += [
     path("res/<int:restaurant_id>/menu", views.res_menu_view, name="res_menu"),
 ]
 
-urlpatterns += [path("dashboard", views.dashboard, name="dashboard")]
+urlpatterns += [
+    path('dashboard', views.dashboard, name='dashboard')
+]
+
+urlpatterns += [
+    path('dashboard', views.dashboard, name='dashboard'),
+    path('items', views.manage_item, name='manage_item'),
+    path('add_item', views.add_item, name='add_item'),
+    path('delete_item/<int:item_id>/', views.delete_item, name='delete_item'),
+    path('update_item/<int:item_id>/', views.update_item, name='update_item'),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

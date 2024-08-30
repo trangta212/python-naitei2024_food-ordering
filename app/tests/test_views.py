@@ -2,6 +2,7 @@ from django.utils import timezone
 from django.test import TestCase, Client
 from django.urls import reverse
 from app.models import (
+    Category,
     MenuItem,
     Order,
     Payment,
@@ -14,6 +15,7 @@ from app.models import (
     OrderItem,
 )
 from django.utils.translation import gettext_lazy as _
+from django.core.files.uploadedfile import SimpleUploadedFile
 import json
 from django.core import mail
 from django.contrib.auth import get_user_model
@@ -531,3 +533,103 @@ class ResMenuViewTest(TestCase):
         )
 
         self.assertEqual(len(response.context["items"]), 0)
+
+class ManageItemTestCase(TestCase):
+    def setUp(self):
+        self.user_restaurant = User.objects.create_user(
+            username='restaurant_user',
+            password='password123',
+            email='restaurant@example.com',
+            role='Restaurant',
+        )
+        self.profile_restaurant = Profile.objects.create(
+            user=self.user_restaurant,
+            name='Restaurant User',
+            email='restaurant@example.com',
+            phone_number='1234567890',
+            address='123 Restaurant St',
+            profile_type='Restaurant'
+        )
+        self.restaurant = Restaurant.objects.create(
+            profile=self.profile_restaurant,
+            image_url='http://example.com/image.jpg',
+            opening_hours={}
+        )
+        self.payment = Payment.objects.create(
+            payment_id='pay_123456789',
+            payment_date='2024-08-27T12:00:00Z',
+            amount=100.00,
+            method='Credit Card'
+        )
+        self.order = Order.objects.create(
+            user=self.profile_restaurant,
+            restaurant=self.restaurant,
+            total_price=100.00,
+            status='Pending',
+            payment=self.payment
+        )
+        self.category = Category.objects.create(category_name='Appetizer', description='Starter dishes')
+
+        self.client = Client()
+        self.client.login(username='restaurant@example.com', password='password123')
+
+    def test_manage_item_view(self):
+        response = self.client.get(reverse('app:manage_item'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'restaurant/manage_item.html')
+    
+    def test_add_item_view_get(self):
+        response = self.client.get(reverse('app:add_item'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'restaurant/add_item.html')
+
+    def test_add_item_view_post(self):
+        image = SimpleUploadedFile('test_image.jpg', b'file_content', content_type='image/jpeg')
+        response = self.client.post(reverse('app:add_item'), {
+            'name': 'Test Item',
+            'price': 10.99,
+            'quantity': 5,
+            'description': 'A test item',
+            'categories': [self.category.category_id],
+            'image': image
+        })
+
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('app:manage_item'))
+
+        self.assertEqual(MenuItem.objects.count(), 1)
+        self.assertEqual(MenuItem.objects.first().name, 'Test Item')
+    
+    def test_delete_item_view(self):
+        menu_item = MenuItem.objects.create(name='Test Item', restaurant=self.restaurant, price=10)
+
+        response = self.client.post(reverse('app:delete_item', args=[menu_item.item_id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('app:manage_item'))
+        self.assertEqual(MenuItem.objects.count(), 0)
+
+    def test_update_item_view_get(self):
+        menu_item = MenuItem.objects.create(name='Test Item', restaurant=self.restaurant, price=10)
+
+        response = self.client.get(reverse('app:update_item', args=[menu_item.item_id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'restaurant/update_item.html')
+
+    def test_update_item_view_post(self):
+        menu_item = MenuItem.objects.create(name='Test Item', restaurant=self.restaurant, price=10)
+        image = SimpleUploadedFile('new_test_image.jpg', b'new_file_content', content_type='image/jpeg')
+
+        response = self.client.post(reverse('app:update_item', args=[menu_item.item_id]), {
+            'name': 'Updated Item',
+            'price': 12.99,
+            'quantity': 3,
+            'description': 'Updated description',
+            'categories': [self.category.category_id],
+            'image': image
+        })
+
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('app:manage_item'))
+
+        menu_item.refresh_from_db()
+        self.assertEqual(menu_item.name, 'Updated Item')

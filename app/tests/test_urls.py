@@ -1,9 +1,8 @@
 from django.test import SimpleTestCase
 from django.urls import reverse, resolve
-from app.views import add_review, ResOrderView, dashboard
+from app.views import add_item, add_review, ResOrderView, dashboard, delete_item, manage_item, update_item
 from app.views import activate
 from app import views
-
 
 class TestUrls(SimpleTestCase):
     
@@ -37,3 +36,19 @@ class TestUrls(SimpleTestCase):
     def test_password_reset_url_resolves(self):
         url = reverse('app:password_reset')
         self.assertEqual(resolve(url).func, views.password_reset)
+
+    def test_manage_item_url_resolved(self):
+        url = reverse('app:manage_item')
+        self.assertEquals(resolve(url).func, manage_item)
+    
+    def test_add_item_url_resolved(self):
+        url = reverse('app:add_item')
+        self.assertEquals(resolve(url).func, add_item)
+
+    def test_delete_item_url_resolved(self):
+        url = reverse('app:delete_item', args=['1'])
+        self.assertEquals(resolve(url).func, delete_item)
+    
+    def test_update_item_url_resolved(self):
+        url = reverse('app:update_item', args=['1'])
+        self.assertEquals(resolve(url).func, update_item)

@@ -1,4 +1,5 @@
 import json
+import os
 import uuid
 import math
 from django.contrib import messages
@@ -13,6 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.utils.translation import gettext as _
+from django.core.files.storage import FileSystemStorage
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.models import User
@@ -28,7 +30,7 @@ from django.utils.encoding import force_bytes, force_str
 from .tokens import account_activation_token
 
 
-from app.forms import ReviewForm, SignUpForm, LogInForm
+from app.forms import ReviewForm, MenuItemForm, SignUpForm, LogInForm
 from django.http import JsonResponse, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
@@ -37,6 +39,8 @@ from django.db.models import Sum, F, Avg, Count
 from django.db import transaction, models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+
+from food_ordering.settings import BASE_DIR
 from .models import (
     Category,
     MenuItem,
@@ -636,6 +640,23 @@ def cancel_order(request):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
 
+def dashboard(request):
+    profile = Profile.objects.get(user=request.user)
+    restaurant = Restaurant.objects.get(profile=profile)
+    total_revenue = Payment.objects.filter(order__restaurant=restaurant).aggregate(Sum('amount'))['amount__sum'] or 0
+    menu_item_count = MenuItem.objects.filter(restaurant=restaurant).count()
+    total_order_count = Order.objects.filter(restaurant=restaurant).count()
+    recent_orders = Order.objects.filter(restaurant=restaurant).order_by('-order_id')[:5]
+
+    context = {
+        'total_revenue': total_revenue,
+        'menu_item': menu_item_count,
+        'total_order': total_order_count,
+        'recent_orders': recent_orders
+    }
+    
+    return render(request, 'restaurant/dashboard.html', context)
+
 
 def add_review(request, item_id):
     item = MenuItem.objects.get(pk=item_id)
@@ -947,3 +968,101 @@ def res_menu_view(request, restaurant_id):
     items = MenuItem.objects.filter(restaurant__restaurant_id=restaurant_id)
     context = {"items": items, "restaurant_name": restaurant.profile.name}
     return render(request, "restaurant/res_menu.html", context=context)
+
+def manage_item(request):
+    profile = Profile.objects.get(user=request.user)
+    restaurant = Restaurant.objects.get(profile=profile)
+    menu_items = MenuItem.objects.filter(restaurant=restaurant)
+
+    context = {
+        'menu_items': menu_items
+    }
+
+    return render(request, 'restaurant/manage_item.html', context)
+
+def add_item(request):
+    if request.method == 'POST':
+        form = MenuItemForm(request.POST, request.FILES)
+        if form.is_valid():
+            menu_item = form.save(commit=False)
+            menu_item.restaurant = Restaurant.objects.get(profile__user=request.user)
+
+            image_file = request.FILES.get('image')
+            if image_file:
+                fs = FileSystemStorage(
+                    location=settings.UPLOAD_ROOT,
+                    base_url=settings.UPLOAD_URL
+                )
+                filename = fs.save(image_file.name, image_file)
+                uploaded_file_url = fs.url(filename)
+                menu_item.image_url = uploaded_file_url
+
+            menu_item.save()
+
+            selected_categories = form.cleaned_data.get('categories')
+            if selected_categories:
+                menu_item.categories.set(selected_categories)
+
+            return redirect('app:manage_item')
+        else:
+            if 'price' in form.errors:
+                messages.error(request, form.errors['price'][0])
+    else:
+        form = MenuItemForm()
+
+    categories = Category.objects.all()
+    context = {
+        'form': form,
+        'categories': categories,
+    }
+    return render(request, 'restaurant/add_item.html', context)
+
+def delete_item(request, item_id):
+    menu_item = get_object_or_404(MenuItem, item_id=item_id)
+    
+    if menu_item.restaurant.profile.user != request.user:
+        return redirect('app:manage_item')
+
+    menu_item.delete()
+    
+    return redirect('app:manage_item')
+
+def update_item(request, item_id):
+    menu_item = get_object_or_404(MenuItem, pk=item_id)
+
+    if request.method == 'POST':
+        form = MenuItemForm(request.POST, request.FILES, instance=menu_item)
+        if form.is_valid():
+            updated_item = form.save(commit=False)
+            updated_item.restaurant = Restaurant.objects.get(profile__user=request.user)
+
+            image_file = request.FILES.get('image')
+            if image_file:
+                fs = FileSystemStorage(
+                    location=settings.UPLOAD_ROOT,
+                    base_url=settings.UPLOAD_URL
+                )
+                filename = fs.save(image_file.name, image_file)
+                uploaded_file_url = fs.url(filename)
+                updated_item.image_url = uploaded_file_url
+
+            updated_item.save()
+
+            selected_categories = form.cleaned_data.get('categories')
+            if selected_categories:
+                updated_item.categories.set(selected_categories)
+
+            return redirect('app:manage_item')
+        else:
+            if 'price' in form.errors:
+                messages.error(request, form.errors['price'][0])
+    else:
+        form = MenuItemForm(instance=menu_item)
+
+    categories = Category.objects.all()
+    context = {
+        'form': form,
+        'categories': categories,
+        'menu_item': menu_item,
+    }
+    return render(request, 'restaurant/update_item.html', context)
