@@ -38,7 +38,7 @@
                           <i class="fas fa-minus"></i>
                         </button>
   
-                        <div class="position-relative">
+                        <div class="position-relative input-wrapper">
                           <input id="{{ item.item.item_id }}" min="0" max="{{ item.item.quantity }}" name="quantity" value="{{ item.quantity }}" type="number"
                           class="form-control form-control-sm cart-input" onchange="changeQuantity(this, '{{ item.item.quantity }}', '{{ item.item.item_id }}')"/>
                           <span class="cartitem-list-qty">/</span>

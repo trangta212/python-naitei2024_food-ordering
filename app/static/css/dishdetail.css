@@ -32,11 +32,6 @@
   margin-top:50px;
 }
 
-
-.btn {
-  margin: 10px;
-  color: black;
-}
 .button2{
   margin-left: 100px;
 }
@@ -140,5 +135,9 @@
     width: 30px;
     height: 30px;
     object-fit: cover;
+}
+
+.dish-img {
+  height: 300px;
 }
 
