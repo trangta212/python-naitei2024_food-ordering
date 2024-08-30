@@ -19,4 +19,4 @@ class TestForm(SimpleTestCase):
         form = ReviewForm(data={})
         
         self.assertFalse(form.is_valid())
-        self.assertEquals(len(form.errors), 2)       
+        self.assertEqual(len(form.errors), 2)       

@@ -16,6 +16,9 @@
                         <h3><i class="fa fa-key fa-4x"></i></h3>
                         <h2 class="text-center">{% trans "Enter OTP" %}</h2>
                         <p>{% trans "Please enter the OTP sent to your email." %}</p>
+                        {% if error %}
+                            <div class="alert alert-danger">{{ error }}</div>
+                        {% endif %}
                         <div class="panel-body">
                             <form id="otp-form" role="form" autocomplete="off" class="form" method="post">
                                 {% csrf_token %}
