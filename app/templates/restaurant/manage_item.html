@@ -1,0 +1,99 @@
+{% load i18n %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans "Manage Menu Items" %}</title>
+    <link href="{% static 'css/lib/dashboard.min.css' %}" rel="stylesheet" />
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="position-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{% url 'app:index' %}">
+                                <span data-feather="home"></span>
+                                {% trans "Home Page" %}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{% url 'app:dashboard' %}">
+                                <span data-feather="home"></span>
+                                {% trans "Dashboard" %}
+                            </a>
+                        </li>
+                        <li class="nav-item" aria-current="page">
+                            <a class="nav-link active" href="{% url 'app:manage_item' %}">
+                                <span data-feather="box"></span>
+                                {% trans "Manage Products" %}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="container mt-4">
+                    <h1>{% trans "Manage Menu Items" %}</h1>
+                    <hr>
+
+                    <!-- Add New Item Button -->
+                    <div class="mb-3">
+                        <a href="{% url 'app:add_item' %}" class="btn btn-primary">{% trans "Add New Item" %}</a>
+                    </div>
+
+                    <!-- Menu Items Table -->
+                    <table class="table table-hover">
+                        <thead class="thead-light">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">{% trans "Name" %}</th>
+                                <th scope="col">{% trans "Category" %}</th>
+                                <th scope="col">{% trans "Description" %}</th>
+                                <th scope="col">{% trans "Price" %}</th>
+                                <th scope="col">{% trans "Quantity" %}</th>
+                                <th scope="col">{% trans "Actions" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in menu_items %}
+                            <tr>
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td>{{ item.name }}</td>
+                                <td>
+                                    {% for category in item.categories.all %}
+                                        <span class="badge bg-secondary">{{ category.category_name }}</span>
+                                    {% endfor %}
+                                </td>
+                                <td>{{ item.description }}</td>
+                                <td>${{ item.price }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>
+                                    <a href="{% url 'app:update_item' item_id=item.item_id %}" class="btn btn-warning btn-sm">{% trans "Update" %}</a>
+                                    <td>
+                                        <a href="{% url 'app:delete_item' item_id=item.item_id %}" class="btn btn-danger">{% trans "Delete" %}</a>
+                                    </td>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">{% trans "No menu items available." %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>    
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+</body>
+</html>
